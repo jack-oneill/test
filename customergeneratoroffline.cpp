@@ -55,8 +55,10 @@ void CustomerGeneratorOffline::clear()
 
 bool CustomerGeneratorOffline::load(const QString &file)
 {
+    if(file=="")
+        return false;
     QFile data(file);
-    if(!data.isOpen())
+    if(!data.open(QIODevice::ReadOnly))
     {
         qDebug()<<"CustomerGeneratorOffline: Failed to open file "+file;
         return false;
@@ -76,7 +78,7 @@ bool CustomerGeneratorOffline::load(const QString &file)
     {
        line=txt.readLine();
        tokens=line.split(",");
-       if(tokens.size()!=4)
+       if(tokens.size()!=3)
        {
            qDebug()<<"CustomerGeneratorOffline: Wrong trip distribution file format!";
            return false;
@@ -85,8 +87,6 @@ bool CustomerGeneratorOffline::load(const QString &file)
        tgt=tokens[1].toInt(&isInt);
        dep=(unsigned)tokens[2].toDouble(&isDouble)*60;
        dep*=60;
-       ret=(unsigned)tokens[3].toDouble(&isDouble)*60;
-       ret*=60;
        if(!isInt || !isDouble)
        {
           qDebug()<<"CustomerGeneratorOffline: Wrong information in trip distribution file. Could not read line "<<lNum;
@@ -118,30 +118,33 @@ void CustomerGeneratorOffline::generate(const unsigned& num)
     {
         vsample = sample(rng);
         CustomerGeneratorSample* sel = mySamples[vsample];
-        if(sel->source() >= neighborhoods.size() || sel->target()>= neighborhoods.size() )
-           qDebug()<<"CustomerGeneratorOffline: Neighborhood does not exist";
-        else
+        while(sel->source() >= neighborhoods.size() || sel->target()>= neighborhoods.size() || neighborhoods[sel->source()]->nodes().size()==0 || neighborhoods[sel->target()]->nodes().size()==0)
         {
-            source=lemon::INVALID;
-            target=lemon::INVALID;
-            while(source==target)
-            {
-                source = neighborhoods[sel->source()]->get( nodepicker() );
-                target = neighborhoods[sel->target()]->get( nodepicker() );
-            }
-            Customer* cust = AgentFactory::instance()->newCustomer("Customer "+QString::number(i),source,target,myWorld);//new Customer(i,"Customer "+QString::number(i),source,target,myWorld);
-            uint64_t time=0;
-            int vnoise = noise(rng)*60;
-            if(vnoise<0 && sel->start()>= -1*vnoise)
-                time=vnoise+sel->start();
-            new EventShowUp(cust,time,myWorld->kernel());
-            cust = AgentFactory::instance()->newCustomer("Customer "+QString::number(i)+" Return",target,source,myWorld);
-            time=0;
-            vnoise = noise(rng)*60;
-            if(vnoise<0 && sel->ret()>= -1*vnoise)
-                time=vnoise+sel->ret();
-            new EventShowUp(cust,time,myWorld->kernel());
+           qDebug()<<"CustomerGeneratorOffline: Neighborhood does not exist or is empty";
+           vsample = sample(rng);
+           sel = mySamples[vsample];
         }
+        source=lemon::INVALID;
+        target=lemon::INVALID;
+        while(source==target)
+        {
+            source = neighborhoods[sel->source()]->get( nodepicker() );
+            target = neighborhoods[sel->target()]->get( nodepicker() );
+        }
+        Customer* cust = AgentFactory::instance()->newCustomer("Customer "+QString::number(i),source,target,myWorld);//new Customer(i,"Customer "+QString::number(i),source,target,myWorld);
+        uint64_t time=0;
+        int vnoise = noise(rng)*60;
+        if(vnoise<0 && sel->start()< -1*vnoise)
+            time=0;
+        else
+            time=vnoise+sel->start();
+        new EventShowUp(cust,time,myWorld->kernel());
+        /*cust = AgentFactory::instance()->newCustomer("Customer "+QString::number(i)+" Return",target,source,myWorld);
+        time=0;
+        vnoise = noise(rng)*60;
+        if(vnoise<0 && sel->ret()>= -1*vnoise)
+            time=vnoise+sel->ret();
+        new EventShowUp(cust,time,myWorld->kernel());*/
     }
 }
 
@@ -162,16 +165,14 @@ QVector<lemon::SmartDigraph::Node> CustomerGeneratorOffline::disperseVehicles(co
     {
         vsample = sample(rng);
         CustomerGeneratorSample* sel = mySamples[vsample];
-        if(sel->source() >= neighborhoods.size() || sel->target()>= neighborhoods.size() )
+        while(sel->source() >= neighborhoods.size()  || neighborhoods[sel->source()]->nodes().size()==0)
         {
-           qDebug()<<"CustomerGeneratorOffline: Neighborhood does not exist";
-           nodes[i]=lemon::INVALID;
+           qDebug()<<"CustomerGeneratorOffline: Neighborhood does not exist or is empty";
+           vsample = sample(rng);
+           sel = mySamples[vsample];
         }
-        else
-        {
-            source = neighborhoods[sel->source()]->get( nodepicker() );
-            nodes[i]=source;
-        }
+        source = neighborhoods[sel->source()]->get( nodepicker() );
+        nodes[i]=source;
     }
     return nodes;
 }

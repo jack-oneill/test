@@ -35,9 +35,9 @@ Settings::Settings(QWidget *parent) :
 
     label = new QLabel("Regression",this);
     layout0->addWidget(label,2,0,1,1);
-    myDistributionFileEdit= new QLineEdit("Select Regression File",box0);
-    myDistributionFileEdit->setReadOnly(true);
-    layout0->addWidget(myDistributionFileEdit,2,1,1,3);
+    myRegressionFileEdit= new QLineEdit("Select Regression File",box0);
+    myRegressionFileEdit->setReadOnly(true);
+    layout0->addWidget(myRegressionFileEdit,2,1,1,3);
     button = new QPushButton("Select",this);
     layout0->addWidget(button,2,4,1,1);
     connect(button,SIGNAL(clicked()),this,SLOT(selectRegression()));

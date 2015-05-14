@@ -186,7 +186,7 @@ bool RoutingNetwork::loadNeighborhoods(QFile &file)
             qDebug()<<"Wrong neighborhood file entry! Expected a double precision value.";
             return false;
         }
-        myNeighborhoods.append(new Neighborhood(name,QPointF(lattitude,longtitude),radius));
+        myNeighborhoods.append(new Neighborhood(name,QPointF(longtitude,lattitude),radius));
     }
     QList<Neighborhood*> nList;
     for(lemon::SmartDigraph::NodeIt nit(*myGraph);nit!=lemon::INVALID;++nit)
@@ -211,14 +211,15 @@ bool RoutingNetwork::loadNeighborhoods(QFile &file)
     for(int i=0;i<myNeighborhoods.size();++i)
     {
         myNeighborhoods[i]->toCdf();
+        qDebug()<<"Neighborhood "+QString::number(i)+" has "+QString::number(myNeighborhoods[i]->nodes().size())+" nodes ";
     }
     return true;
 }
 
 bool RoutingNetwork::load(const QString& name)
 {
-    QFile file(name+".map");
-    QFile hoods(name.mid(0,name.lastIndexOf("."))+".hoods");
+    QFile file(name);
+    QFile hoods(name.mid(0,name.lastIndexOf("."))+".neigh");
     bool readingNodes=true;
     myCurrentNetwork="None";
     if(!file.open(QFile::ReadOnly))

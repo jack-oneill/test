@@ -18,9 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     Logger::instance().setFilterLevel(200);
-    initialize();
-    buildMenus();
-    buildToolBars();
     myView=new SimGraphicsView(this);
     myTabWidget = new QTabWidget(this);
     myTabWidget->addTab(myView,"Map");
@@ -29,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent)
     myTabWidget->addTab(myLog,"Log");
     mySettings = new Settings(this);
     myTabWidget->addTab(mySettings,"Settings");
+    initialize();
+    buildMenus();
+    buildToolBars();
     setCentralWidget(myTabWidget);
     myWorld=NULL;
     connect(&Logger::instance(),SIGNAL(newMessage(const QString&)),myLog,SLOT(append(const QString&)));
@@ -72,6 +72,9 @@ void MainWindow::initialize()
     myActionSimStart=new QAction("&Start",this);
     myActionSimStop=new QAction("S&top",this);
     connect(myActionOpenNetwork,SIGNAL(triggered()),this,SLOT(openNetwork()));
+    connect(mySettings,SIGNAL(openSelectMap()),this,SLOT(openNetwork()));
+    connect(mySettings,SIGNAL(openSelectDistribution()),this,SLOT(openDistribution()));
+    connect(mySettings,SIGNAL(openSelectRegression()),this,SLOT(openRegression()));
     connect(myActionOpenDistribution,SIGNAL(triggered()),this,SLOT(openDistribution()));
     connect(myActionOpenRegression,SIGNAL(triggered()),this,SLOT(openRegression()));
     connect(myActionSimStart,SIGNAL(triggered()),this,SLOT(startSimulation()));
@@ -88,7 +91,7 @@ MainWindow::~MainWindow()
 void MainWindow::openNetwork()
 {
    QFileDialog dialog;
-   QString file  = dialog.getOpenFileName(this,"Open Map",QString(),".map");
+   QString file  = dialog.getOpenFileName(this,"Open Map",QString(),"*.map");
    if(file=="")
        return;
    if(myWorld)
@@ -111,14 +114,14 @@ void MainWindow::openNetwork()
 void MainWindow::openDistribution()
 {
    QFileDialog dialog;
-   QString file  = dialog.getOpenFileName(this,"Open Distribution",QString(),".dist");
+   QString file  = dialog.getOpenFileName(this,"Open Distribution",QString(),"*.dist");
    mySettings->setDistributionFile(file);
 }
 
 void MainWindow::openRegression()
 {
    QFileDialog dialog;
-   QString file  = dialog.getOpenFileName(this,"Open Regression",QString(),".reg");
+   QString file  = dialog.getOpenFileName(this,"Open Regression",QString(),"*.reg");
    mySettings->setRegressionFile(file);
 }
 
@@ -148,7 +151,7 @@ void MainWindow::startSimulation()
     AgentFactory::instance()->reset();
     Logger::instance().setFilterLevel(mySettings->logLevel());
     bool isLoaded=true;
-    CustomerGeneratorOffline* generator = new CustomerGeneratorOffline(myWorld,mySettings->distributionFile(),15);
+    CustomerGeneratorOffline* generator = new CustomerGeneratorOffline(myWorld,"",15);
     isLoaded = generator->load(mySettings->distributionFile());
     RegressionRunner* regressor = new RegressionRunner(kernel,generator,this);
     isLoaded = isLoaded && regressor->load(mySettings->regressionFile());

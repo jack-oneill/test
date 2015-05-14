@@ -63,12 +63,15 @@ void EventMove::execute()
     vehicle->move(myTime);
     Logger::instance()<<50<<myTime<<"Vehicle "+QString::number(vehicle->id())+" moved.";
     QString subline;
-    QSet<Customer*>::iterator it=vehicle->customers().begin();
+    QList<Customer*> lcust=vehicle->customers().toList();
     for(int i=0;i<std::max((int)vehicle->capacity(),2);++i)
     {
-       if(vehicle->customers().size()<i)
+       if(lcust.size()>i)
        {
-           subline+= QString::number((*it)->id())+",";
+           if(!lcust[i]->waiting())
+               subline+= QString::number(lcust[i]->id())+",";
+           else
+               subline+= "-1,";
        }
        else
        {
@@ -100,13 +103,16 @@ void EventPickUp::execute()
     myCustomer->setVehicle(vehicle);
     myCustomer->setPickUpTime(myTime);
     Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" picked up customer "+QString::number(myCustomer->id())+".";
-    QSet<Customer*>::iterator it=vehicle->customers().begin();
     QString subline;
+    QList<Customer*> lcust=vehicle->customers().toList();
     for(int i=0;i<std::max(2,(int)vehicle->capacity());++i)
     {
-       if(vehicle->customers().size()<i)
+       if(lcust.size()>i)
        {
-           subline+= QString::number((*it)->id())+",";
+           if(!lcust[i]->waiting())
+               subline+= QString::number(lcust[i]->id())+",";
+           else
+               subline+= "-1,";
        }
        else
        {
@@ -149,13 +155,16 @@ void EventDropOff::execute()
                            fill+
                            "3" );
     myCustomer->world()->removeCustomer(myCustomer);
-    QSet<Customer*>::iterator it=vehicle->customers().begin();
     QString subline;
+    QList<Customer*> lcust=vehicle->customers().toList();
     for(int i=0;i<std::max(2,(int)vehicle->capacity());++i)
     {
-       if(vehicle->customers().size()<i)
+       if(lcust.size()>i)
        {
-           subline+= QString::number((*it)->id())+",";
+           if(!lcust[i]->waiting())
+               subline+= QString::number(lcust[i]->id())+",";
+           else
+               subline+= "-1,";
        }
        else
        {
@@ -297,6 +306,7 @@ void EventShowUp::execute()
     Customer* ncust = AgentFactory::instance()->newCustomer("Customer",origin,destination,this->myKernel->world());*/
     double idist = VehicleRouter::instance(customer->world())->getRoute(customer->origin(),customer->destination(),customer->world()->network()).second;
     customer->setIdealDistance(idist);
+    customer->setOptimalTime(idist/SPEED);
     assignVehicle();
     //new EventShowUp(ncust,myTime+tim,myKernel);
 }
