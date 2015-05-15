@@ -73,7 +73,7 @@ void RegressionRunner::start()
     {
         //Generate customers
         myGenerator->generate(mySimulations[i][0]);
-        myKernel->setTimeLimit(36);
+        myKernel->setTimeLimit(24);
         //Add vehicles
         QVector<lemon::SmartDigraph::Node> vpos = myGenerator->disperseVehicles(mySimulations[i][1]);
         for(int j=0;j<vpos.size();++j)

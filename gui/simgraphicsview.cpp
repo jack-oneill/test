@@ -68,8 +68,8 @@ void SimGraphicsView::setWorld(World* wrld)
     pen.setColor(Qt::red);
     connect(myWorld,SIGNAL(customerAdded(Customer*)),this,SLOT(addCustomer(Customer*)));
     connect(myWorld,SIGNAL(vehicleAdded(Vehicle*)),this,SLOT(addVehicle(Vehicle*)));
-    connect(myWorld,SIGNAL(vehicleDestroyed(Vehicle*)),this,SLOT(removeAgent(Agent*)));
-    connect(myWorld,SIGNAL(customerDestroyed(Customer*)),this,SLOT(removeAgent(Agent*)));
+    connect(myWorld,SIGNAL(vehicleDestroyed(Agent*)),this,SLOT(removeAgent(Agent*)));
+    connect(myWorld,SIGNAL(customerDestroyed(Agent*)),this,SLOT(removeAgent(Agent*)));
     //myScene->addEllipse(QPointF(),20,20);
 }
 

@@ -1,5 +1,6 @@
 #include "simulationkernel.h"
 #include <QThread>
+#include "agentfactory.h"
 SimulationKernel::SimulationKernel(QObject *parent) :
     QObject(parent)
 {
@@ -129,4 +130,6 @@ void SimulationKernel::stop()
 {
     mySimulationStopped=true;
     myEventQueue->clear();
+    myWorld->clear();
+    AgentFactory::instance()->reset();
 }

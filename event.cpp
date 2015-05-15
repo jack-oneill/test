@@ -68,7 +68,7 @@ void EventMove::execute()
     {
        if(lcust.size()>i)
        {
-           if(!lcust[i]->waiting())
+           if(!lcust[i]->vehicle()!=NULL)
                subline+= QString::number(lcust[i]->id())+",";
            else
                subline+= "-1,";
@@ -102,14 +102,15 @@ void EventPickUp::execute()
     vehicle->addCustomer(myCustomer);
     myCustomer->setVehicle(vehicle);
     myCustomer->setPickUpTime(myTime);
-    Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" picked up customer "+QString::number(myCustomer->id())+".";
+    Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" picked up customer "+QString::number(myCustomer->id())+" at node "
+                        +QString::number((*myAgent->world()->network()->nodeIdMap())[myCustomer->origin()]);
     QString subline;
     QList<Customer*> lcust=vehicle->customers().toList();
     for(int i=0;i<std::max(2,(int)vehicle->capacity());++i)
     {
        if(lcust.size()>i)
        {
-           if(!lcust[i]->waiting())
+           if(!lcust[i]->vehicle()==NULL)
                subline+= QString::number(lcust[i]->id())+",";
            else
                subline+= "-1,";
@@ -141,7 +142,8 @@ void EventDropOff::execute()
 {
     Vehicle* vehicle = (Vehicle*) myAgent;
     vehicle->removeCustomer(myCustomer);
-    Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" delivered customer "+QString::number(myCustomer->id())+".";
+    Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" delivered customer "+QString::number(myCustomer->id())+" at node "
+                        +QString::number((*myAgent->world()->network()->nodeIdMap())[myCustomer->origin()]);
     QString fill;
     for(int i=0;i<myKernel->world()->vehicles()[0]->capacity()-2;++i)
     {
@@ -161,7 +163,7 @@ void EventDropOff::execute()
     {
        if(lcust.size()>i)
        {
-           if(!lcust[i]->waiting())
+           if(!lcust[i]->vehicle()==NULL)
                subline+= QString::number(lcust[i]->id())+",";
            else
                subline+= "-1,";
@@ -188,7 +190,6 @@ void EventShowUp::assignVehicle()
     if(router==NULL)
         return;
     Vehicle* veh = router->route((Customer*)myAgent);
-    Event* dummy;
     if(veh==NULL)
     {
         Logger::instance()<<50<<myTime<<"No vehicle for customer "+QString::number(((Customer*)myAgent)->id())+". Waiting for "+QString::number(SNOOZETIME)+" seconds.";
@@ -196,6 +197,7 @@ void EventShowUp::assignVehicle()
     }
     else
     {
+        Logger::instance()<<25<<myTime<<"Customer "+QString::number(myAgent->id())+" assigned to "+QString::number(veh->id())+".";
         QList<QPair<lemon::SmartDigraph::Node,double> > route=veh->routeAndSpeed();
         myKernel->removeEvents(veh);
         uint64_t tim=myTime;
@@ -207,6 +209,8 @@ void EventShowUp::assignVehicle()
         QSet<Customer*> hasDropOffEvent;
         for(QSet<Customer*>::iterator sit=customers.begin();sit!=customers.end();++sit)
         {
+           if((*sit)->vehicle()!=NULL)
+               hasPickUpEvent.insert(*sit);
             destToCust[(*sit)->destination()].append(*sit);
             origToCust[(*sit)->origin()].append(*sit);
         }
@@ -215,7 +219,7 @@ void EventShowUp::assignVehicle()
         {
             for(int j=0;j<it.value().size();++j)
             {
-                if(it.value()[j]->vehicle()==NULL)
+                if(!hasPickUpEvent.contains(it.value()[j]))
                 {
                     new EventPickUp(it.value()[j],veh,tim,myKernel);
                     hasPickUpEvent.insert(it.value()[j]);
@@ -265,9 +269,9 @@ void EventShowUp::assignVehicle()
             {
                 for(int j=0;j<it.value().size();++j)
                 {
-                    if(it.value()[j]->vehicle()==NULL)
+                    if(!hasPickUpEvent.contains(it.value()[j]))
                     {
-                        dummy = new EventPickUp(it.value()[j],veh,tim,myKernel);
+                        new EventPickUp(it.value()[j],veh,tim,myKernel);
                         hasPickUpEvent.insert(it.value()[j]);
                     }
                 }

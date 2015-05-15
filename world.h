@@ -35,8 +35,8 @@ public:
 signals:
     void customerAdded(Customer*);
     void vehicleAdded(Vehicle*);
-    void customerDestroyed(Customer*);
-    void vehicleDestroyed(Vehicle*);
+    void customerDestroyed(Agent*);
+    void vehicleDestroyed(Agent*);
     void customerTaken(Customer*);
 public slots:
 };

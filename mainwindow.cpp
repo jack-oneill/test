@@ -153,7 +153,8 @@ void MainWindow::startSimulation()
     bool isLoaded=true;
     CustomerGeneratorOffline* generator = new CustomerGeneratorOffline(myWorld,"",15);
     isLoaded = generator->load(mySettings->distributionFile());
-    RegressionRunner* regressor = new RegressionRunner(kernel,generator,this);
+    RegressionRunner* regressor = new RegressionRunner(kernel,generator);
+    regressor->moveToThread(mySimulationThread);
     isLoaded = isLoaded && regressor->load(mySettings->regressionFile());
     if(isLoaded==false)
     {
@@ -185,7 +186,6 @@ void MainWindow::startSimulation()
     connect(mySimulationThread,SIGNAL(started()),regressor,SLOT(start()));
     //connect(kernel,SIGNAL(simulationEnded()),mySimulationThread,SLOT(quit()));
     connect(regressor,SIGNAL(regressionEnded()),mySimulationThread,SLOT(quit()));
-
     mySimulationThread->start();
 }
 

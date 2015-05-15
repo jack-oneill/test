@@ -171,19 +171,21 @@ QList<std::pair <Vehicle*, qreal> > VehicleRouter::getDistancesFromCustomer (Cus
 //Returns the nodes through which the car has to pass and also the sets of origins and destinations of customers not yet in the car in order to make sure later that the customer is picked up before he is delivered
 QPair <QList <SmartDigraph::Node>,QList < QPair < SmartDigraph::Node, SmartDigraph::Node> > > VehicleRouter::getStopNodes (Vehicle* agent, Customer* cust)
 {
-    QSet <Customer*> customers_in_this_agent= agent->customers();
-    customers_in_this_agent.insert(cust);
+    QList<Customer*> customers_in_this_agent= agent->customers().toList();
+    customers_in_this_agent.append(cust);
     QList <SmartDigraph::Node> nodes;
     QList < QPair < SmartDigraph::Node, SmartDigraph::Node> > odlist;//used for the agents that also need to visit their origins as well. used to check if the permutation first visits the origin and then the destination
-    for (QSet<Customer*>::iterator citer=customers_in_this_agent.begin(); citer != customers_in_this_agent.end();++citer)
+    Customer* icust=NULL;
+    for(int i=0;i<customers_in_this_agent.size();++i)
     {
-        nodes.append(((*citer)->destination()));
-        if ((*citer)->waiting())// ONLY WAY TO GET JUST THE DESTINATION IS IF THE CUSTOMER IS NOT WAITING ANYMORE
+        icust = customers_in_this_agent[i];
+        nodes.append(icust->destination());
+        if (icust->waiting())// ONLY WAY TO GET JUST THE DESTINATION IS IF THE CUSTOMER IS NOT WAITING ANYMORE
         {
-            nodes.append((*citer)->origin());
+            nodes.append(icust->origin());
             QPair < SmartDigraph::Node, SmartDigraph::Node> od;
-            od.first=(*citer)->origin();
-            od.second=(*citer)->destination();
+            od.first=icust->origin();
+            od.second=icust->destination();
             odlist.append(od);
         }
     }
