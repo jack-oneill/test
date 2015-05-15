@@ -49,7 +49,6 @@ protected:
     void addArc(const QStringList&);
     QString myCurrentNetwork;
     QPointF myCenter;
-    inline double fdist(double x0, double y0, double x1, double y1);
     bool loadNeighborhoods(QFile &);
     bool myValid;
 public:

@@ -64,12 +64,12 @@ void World::addVehicle(Vehicle* vhl)
 void World::addCustomer(Customer* cust)
 {
     myCustomers[cust->id()]=cust;
-    emit customerAdded(cust);
+    //emit customerAdded(cust);
 }
 void World::removeCustomer(Customer * cust)
 {
     myCustomers.remove(cust->id());
-    emit customerDestroyed(cust);
+    //emit customerDestroyed(cust);
     delete cust;
 }
 

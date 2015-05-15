@@ -8,6 +8,7 @@
 #include<lemon/concepts/graph.h>
 #include <lemon/list_graph.h>
 #include <QDebug>
+#include "utilities.h"
 using namespace lemon;
 
 VehicleRouter* VehicleRouter::myInstance=NULL;
@@ -148,7 +149,7 @@ QList<std::pair <Vehicle*, qreal> > VehicleRouter::getDistancesFromCustomer (Cus
         current.first=(*it);
         QPointF origin_position=toPoint(customer_origin);
         QPointF vehicle_position=toPoint((*it)->nextPosition());
-        current.second=(origin_position-vehicle_position).manhattanLength()*40000/360;
+        current.second=0.001*Utilities::dist(origin_position,vehicle_position);//(origin_position-vehicle_position).manhattanLength()*40000/360;
         //Check if this car has free space and also calculate if it is possible for the car to reach the customer within the waiting time
         if (myIgnoreWaitingTime)
         {

@@ -68,7 +68,7 @@ void EventMove::execute()
     {
        if(lcust.size()>i)
        {
-           if(!lcust[i]->vehicle()!=NULL)
+           if(!lcust[i]->vehicle()==NULL)
                subline+= QString::number(lcust[i]->id())+",";
            else
                subline+= "-1,";
@@ -151,9 +151,9 @@ void EventDropOff::execute()
     }
     OutputGenerator::instance()->write(QString::number(myCustomer->id()) + ","+
                            QString::number(myTime/60.0)+","+
-                           QString::number(myCustomer->pickUpTime()/60)+","+
-                           QString::number(myCustomer->optimalTime()/60) +","+
-                           QString::number((myTime-myCustomer->pickUpTime())/60) +","+
+                           QString::number(myCustomer->pickUpTime()/60.0)+","+
+                           QString::number(myCustomer->optimalTime()/60.0) +","+
+                           QString::number((myTime-myCustomer->pickUpTime())/60.0) +","+
                            fill+
                            "3" );
     myCustomer->world()->removeCustomer(myCustomer);

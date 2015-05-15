@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <cmath>
 #include <QDebug>
+#include "utilities.h"
 
 bool operator<(QPointF a,QPointF b)
 {
@@ -142,18 +143,6 @@ void RoutingNetwork::initialize()
     myDistanceMap=new DistanceMap(*myGraph);
     myPositionMap=new PositionMap(*myGraph);
 }
-double RoutingNetwork::fdist(double x0,double y0,double x1,double y1)
-{
-    double R = 6371000; // metres
-    double phi1 = x0*3.14/180;
-    double phi2 = x1*3.14/180;
-    double dPhi= phi2-phi1;
-    double dL= (y0-y1)*3.14/180;
-    double a = sin(dPhi/2)*sin(dPhi/2)+cos(phi1)*cos(phi2)*sin(dL/2)*sin(dL/2);
-    double c = 2 * std::atan2(sqrt(a), sqrt(1-a));
-    double d = R * c;
-    return d;
-}
 
 bool RoutingNetwork::loadNeighborhoods(QFile &file)
 {
@@ -195,7 +184,7 @@ bool RoutingNetwork::loadNeighborhoods(QFile &file)
         {
             QPointF np=(*myPositionMap)[nit];
             Neighborhood* neigh = myNeighborhoods[i];
-            double di = fdist(np.x(),np.y(),neigh->center().x(),neigh->center().y());
+            double di = Utilities::dist(np.x(),np.y(),neigh->center().x(),neigh->center().y());
             if(di<=neigh->radius())
             {
                 nList.append(neigh);
