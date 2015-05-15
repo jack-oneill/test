@@ -359,6 +359,6 @@ void EventSnooze::execute()
 {
     Customer* cust = (Customer*)myAgent;
     Logger::instance()<<50<<myTime<<"Retrying customer "+QString::number(cust->id());
-    cust->setRequestTime(cust->requestTime()+myDelta);
+    //cust->setRequestTime(cust->requestTime()+myDelta);
     assignVehicle();
 }
