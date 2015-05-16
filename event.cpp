@@ -1,4 +1,5 @@
 #include "event.h"
+#include <QDebug>
 #include "customer.h"
 #include "vehicle.h"
 #include "simulationkernel.h"
@@ -272,7 +273,12 @@ void EventShowUp::assignVehicle()
                 }
             }
         }
+        if(hasDropOffEvent.size()!=hasPickUpEvent.size() || hasDropOffEvent.size()!=customers.size())
+        {
+            qDebug()<<"Unmatched pickup and dropoff events!";
+        }
     }
+
 }
 
 void EventShowUp::execute()
@@ -283,7 +289,7 @@ void EventShowUp::execute()
     Logger::instance()<<25<<myTime<<("Customer "+QString::number(customer->id())+" appeared.");
     double idist = VehicleRouter::instance(customer->world())->getRoute(customer->origin(),customer->destination(),customer->world()->network()).second;
     customer->setIdealDistance(idist);
-    customer->setOptimalTime((uint64_t)ceil(idist/SPEED));
+    customer->setOptimalTime((uint64_t)ceil(1000*idist/SPEED));
 
     OutputGenerator::instance()->writeCust(QString::number(customer->id()) + ","+
                            QString::number(myTime/60.0)+","+

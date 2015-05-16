@@ -46,10 +46,22 @@ QList<QPair<lemon::SmartDigraph::Node, double> > Vehicle::routeAndSpeed()
 
 lemon::SmartDigraph::Arc Vehicle::arc()
 {
-    for(lemon::SmartDigraph::OutArcIt oait(*myWorld->network()->graph(), myRouteAndSpeed[myCurrentPos].first);oait!=lemon::INVALID;++oait)
+    lemon::SmartDigraph::Arc prevPos=lemon::INVALID;
+    if(myRouteAndSpeed.size()<2)
+        return prevPos;
+    if(myCurrentPos==0)
     {
-        if(myWorld->network()->graph()->target(oait)==nextPosition())
-            return oait;
+        for(lemon::SmartDigraph::OutArcIt oait(*myWorld->network()->graph(),myRouteAndSpeed[myCurrentPos].first);oait!=lemon::INVALID;++oait)
+        {
+            if(myWorld->network()->graph()->target(oait)==nextPosition())
+                return oait;
+        }
+    }
+
+    for(lemon::SmartDigraph::InArcIt iait(*myWorld->network()->graph(), myRouteAndSpeed[myCurrentPos].first);iait!=lemon::INVALID;++iait)
+    {
+        if(myWorld->network()->graph()->source(iait)==myRouteAndSpeed[myCurrentPos-1].first)
+            return iait;
     }
     return lemon::INVALID;
 }
