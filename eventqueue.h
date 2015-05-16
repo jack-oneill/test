@@ -17,8 +17,9 @@ struct CompareEventPointers
 class EventQueue
 {
 private:
-    std::multiset<Event*,CompareEventPointers> myQueue;
+    //std::set<Event*,CompareEventPointers> myQueue;
     QMap<Agent*,QList<Event*> > myAgentEvents;
+    QMap<uint64_t,QList<Event*> > myQueue;
 public:
     EventQueue();
     ~EventQueue();

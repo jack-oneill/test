@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     customergeneratoroffline.cpp \
     regressionrunner.cpp \
     outputgenerator.cpp \
-    utilities.cpp
+    utilities.cpp \
+    scoreboard.cpp
 
 HEADERS  += mainwindow.h \
     agent.h \
@@ -69,4 +70,5 @@ HEADERS  += mainwindow.h \
     customergeneratoroffline.h \
     regressionrunner.h \
     outputgenerator.h \
-    utilities.h
+    utilities.h \
+    scoreboard.h

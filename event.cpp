@@ -9,6 +9,7 @@
 #include "vehiclerouter.h"
 #include "gui/logger.h"
 #include "outputgenerator.h"
+#include "scoreboard.h"
 #include <stdlib.h>
 
 
@@ -53,8 +54,10 @@ void EventStartSimulation::execute()
 
 }
 
-EventMove::EventMove(Vehicle* veh,uint64_t tim,SimulationKernel* ker) : Event(veh,tim,ker)
+EventMove::EventMove(Vehicle* veh,uint64_t tim,unsigned index, unsigned total,SimulationKernel* ker) : Event(veh,tim,ker)
 {
+    myIndex=index;
+    myTotal=total;
     myType=t_EventMove;
 }
 
@@ -62,7 +65,7 @@ void EventMove::execute()
 {
     Vehicle* vehicle = (Vehicle*) myAgent;
     vehicle->move(myTime);
-    Logger::instance()<<50<<myTime<<"Vehicle "+QString::number(vehicle->id())+" moved.";
+    Logger::instance()<<50<<myTime<<"Vehicle "+QString::number(vehicle->id())+" moved. ["+QString::number(myIndex)+"/"+QString::number(myTotal)+"]";
     QString subline;
     QList<Customer*> lcust=vehicle->customers().toList();
     for(int i=0;i<std::max((int)vehicle->capacity(),2);++i)
@@ -152,6 +155,7 @@ void EventDropOff::execute()
                            QString::number((myTime-myCustomer->pickUpTime())/60.0) +","+
                            QString::number((myCustomer->pickUpTime()-myCustomer->requestTime())/60.0)+
                            "3" );
+    ScoreBoard::instance()->last()->addDelivered(myTime-myCustomer->pickUpTime(),myCustomer->optimalTime(),myCustomer->pickUpTime()-myCustomer->requestTime());
     myCustomer->world()->removeCustomer(myCustomer);
     QString subline;
     QList<Customer*> lcust=vehicle->customers().toList();
@@ -189,7 +193,10 @@ void EventShowUp::assignVehicle()
     if(veh==NULL)
     {
         Logger::instance()<<50<<myTime<<"No vehicle for customer "+QString::number(((Customer*)myAgent)->id())+". Waiting for "+QString::number(SNOOZETIME)+" seconds.";
-        new EventSnooze((Customer*)myAgent,SNOOZETIME,myTime+SNOOZETIME,myKernel);
+        if(myTime-((Customer*)myAgent)->requestTime()>=1800)//Half an hour
+            new EventDisappear((Customer*)myAgent,myTime,myKernel);
+        else
+            new EventSnooze((Customer*)myAgent,SNOOZETIME,myTime+SNOOZETIME,myKernel);
     }
     else
     {
@@ -247,7 +254,9 @@ void EventShowUp::assignVehicle()
                }
             }
             tim+=(uint64_t)ceil(dist*1000/route[i].second);
-            new EventMove(veh,tim,myKernel);
+            //if(veh->id()==16)
+            //  qDebug()<<QString::number(i)+" Info : "+QString::number(tim)+", Speed: "+QString::number(route[i].second)+", Dist: "+QString::number(dist)+", Vehicle: "+QString::number(veh->id());
+            new EventMove(veh,tim,(unsigned)i,(unsigned)route.size()-1,myKernel);
             it=destToCust.find(route[i].first);
             if(it!=destToCust.end())
             {
@@ -291,13 +300,6 @@ void EventShowUp::execute()
     customer->setIdealDistance(idist);
     customer->setOptimalTime((uint64_t)ceil(1000*idist/SPEED));
 
-    OutputGenerator::instance()->writeCust(QString::number(customer->id()) + ","+
-                           QString::number(myTime/60.0)+","+
-                           "-1,"+
-                           QString::number(customer->optimalTime()/60.0)+
-                           "-1,"+
-                           "-1,"+
-                           "3" );
     /*
     uint64_t tim=CustomerGenerationProcess::instance()->next();
     QPair<lemon::SmartDigraph::Node,lemon::SmartDigraph::Node>  nodes(lemon::INVALID,lemon::INVALID);
@@ -323,6 +325,15 @@ void EventDisappear::execute()
 {
     Customer* customer = (Customer*)myAgent;
     Logger::instance()<<50<<myTime<<"Customer "+QString::number(customer->id())+" disappeared.";
+    OutputGenerator::instance()->writeCust(QString::number(customer->id()) + ","+
+                           QString::number(myTime/60.0)+","+
+                           "-1,"+
+                           QString::number(customer->optimalTime()/60.0)+
+                           "-1,"+
+                           "-1,"+
+                           "3" );
+    ScoreBoard::instance()->last()->addGiveUp();
+    customer->world()->removeCustomer(customer);
 }
 
 EventSatisfactionDown::EventSatisfactionDown(unsigned st,Customer* cust,uint64_t tim,SimulationKernel* ker) : Event(cust,tim,ker)

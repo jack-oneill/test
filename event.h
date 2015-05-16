@@ -37,8 +37,11 @@ public:
 
 class EventMove : public Event
 {
+protected:
+    unsigned myIndex;
+    unsigned myTotal;
 public:
-    EventMove(Vehicle*,uint64_t,SimulationKernel*);
+    EventMove(Vehicle*,uint64_t,unsigned,unsigned,SimulationKernel*);
     virtual void execute();
 };
 

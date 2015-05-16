@@ -8,6 +8,8 @@
 #include "gui/simgraphicsview.h"
 #include <QTextEdit>
 #include "gui/settings.h"
+class RegressionRunner;
+class CustomerGeneratorOffline;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -20,6 +22,9 @@ private:
     QAction* myActionOpenDistribution;
     QAction* myActionOpenRegression;
     QThread* mySimulationThread;
+    RegressionRunner* myRegressionRunner;
+    CustomerGeneratorOffline* myCustomerGenerator;
+
     SimGraphicsView* myView;
     Settings* mySettings;
     QTabWidget* myTabWidget;

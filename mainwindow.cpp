@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
     myStatusBar=new QStatusBar(this);
     setStatusBar(myStatusBar);
     mySimulationThread=NULL;
+    myRegressionRunner=NULL;
+    myCustomerGenerator=NULL;
 }
 void MainWindow::buildMenus()
 {
@@ -85,7 +87,10 @@ void MainWindow::initialize()
 
 MainWindow::~MainWindow()
 {
-
+    if(myRegressionRunner)
+        delete myRegressionRunner;
+    if(myCustomerGenerator)
+        delete myCustomerGenerator;
 }
 
 void MainWindow::openNetwork()
@@ -141,6 +146,10 @@ void MainWindow::startSimulation()
         return;
     if(mySimulationThread)
        delete mySimulationThread;
+    if(myRegressionRunner)
+       delete myRegressionRunner;
+    if(myCustomerGenerator)
+       delete myCustomerGenerator;
     mySimulationThread = new QThread(this);
     SimulationKernel* kernel = new SimulationKernel();
     kernel->moveToThread(mySimulationThread);
@@ -151,11 +160,11 @@ void MainWindow::startSimulation()
     AgentFactory::instance()->reset();
     Logger::instance().setFilterLevel(mySettings->logLevel());
     bool isLoaded=true;
-    CustomerGeneratorOffline* generator = new CustomerGeneratorOffline(myWorld,"",15);
-    isLoaded = generator->load(mySettings->distributionFile());
-    RegressionRunner* regressor = new RegressionRunner(kernel,generator);
-    regressor->moveToThread(mySimulationThread);
-    isLoaded = isLoaded && regressor->load(mySettings->regressionFile());
+    myCustomerGenerator = new CustomerGeneratorOffline(myWorld,"",15);
+    isLoaded = myCustomerGenerator ->load(mySettings->distributionFile());
+    myRegressionRunner= new RegressionRunner(kernel,myCustomerGenerator);
+    myRegressionRunner->moveToThread(mySimulationThread);
+    isLoaded = isLoaded && myRegressionRunner->load(mySettings->regressionFile());
     if(isLoaded==false)
     {
         qDebug()<<"Could not start simulation because of missing or corrupt input files";
@@ -183,9 +192,9 @@ void MainWindow::startSimulation()
     */
     VehicleRouter::instance(myWorld)->setIgnoreWaitingTime(mySettings->ignoreWaitingTime());
     //kernel->setTimeLimit(mySettings->timeLimit());
-    connect(mySimulationThread,SIGNAL(started()),regressor,SLOT(start()));
+    connect(mySimulationThread,SIGNAL(started()),myRegressionRunner,SLOT(start()));
     //connect(kernel,SIGNAL(simulationEnded()),mySimulationThread,SLOT(quit()));
-    connect(regressor,SIGNAL(regressionEnded()),mySimulationThread,SLOT(quit()));
+    connect(myRegressionRunner,SIGNAL(regressionEnded()),mySimulationThread,SLOT(quit()));
     mySimulationThread->start();
 }
 

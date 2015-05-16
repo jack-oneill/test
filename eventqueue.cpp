@@ -1,4 +1,5 @@
 #include "eventqueue.h"
+#include <QDebug>
 #include "gui/logger.h"
 
 
@@ -8,18 +9,17 @@ EventQueue::EventQueue()
 }
 EventQueue::~EventQueue()
 {
-    for(std::set<Event*,CompareEventPointers>::iterator it = myQueue.begin(); it!=myQueue.end();++it)
-    {
-        delete *it;
-    }
+    clear();
 }
 
 Event* EventQueue::pop()
 {
     if(myQueue.size()==0)
         return NULL;
-    Event* out = *myQueue.begin();
-    myQueue.erase(myQueue.begin());
+    Event* out = myQueue.begin().value().first();
+    myQueue.begin().value().removeAll(out);
+    if(myQueue.begin().value().size()==0)
+        myQueue.erase(myQueue.begin());
     Agent* agent=out->agent();
     if(myAgentEvents.contains(agent))
     {
@@ -31,20 +31,23 @@ Event* EventQueue::front() const
 {
     if(myQueue.size()==0)
         return NULL;
-    return *myQueue.begin();
+    if(myQueue.begin().value().size()==0)
+        return NULL;
+    return myQueue.begin().value().first();
 }
 void EventQueue::push(Event* event)
 {
     if(event==NULL)
         return;
 
-    std::multiset<Event*,CompareEventPointers>::iterator fit = myQueue.find(event);
-    if(*fit==event)
+    //std::set<Event*,CompareEventPointers>::iterator fit = myQueue.find(event);
+    QMap<uint64_t,QList<Event*> >::iterator fit = myQueue.find(event->time());
+    if(fit!=myQueue.end() && fit.value().contains(event))
     {
-        Logger::instance()<<80<<(*fit)->time()<<"Error event exists! (This: "+QString::number((uint64_t)event,16)+" time:"+QString::number(event->time())+", found "+QString::number((uint64_t)(*fit),16)+" time"+QString::number((*fit)->time())+")";
+        Logger::instance()<<80<<fit.key()<<"Error event exists! (This: "+QString::number((uint64_t)event,16)+" time:"+QString::number(event->time())+", found.";
         return;
     }
-    myQueue.insert(event);
+    myQueue[event->time()].append(event);
     Agent* agent=event->agent();
     if (!myAgentEvents.contains(agent))
         myAgentEvents[agent]=QList<Event*>();
@@ -57,9 +60,18 @@ void EventQueue::removeEvents(Agent* agent)
     {
         QList<Event*> events = myAgentEvents[agent];
         myAgentEvents[agent].clear();
+        QVector<uint64_t> times;
+        times.resize(events.size());
         for(int i=0;i<events.size();++i)
         {
-            myQueue.erase(events[i]);
+            times[i]=events[i]->time();
+            myQueue[events[i]->time()].removeAll(events[i]);
+            delete events[i];
+        }
+        for(int i=0;i<times.size();++i)
+        {
+            if(myQueue[times[i]].size()==0)
+                myQueue.remove(times[i]);
         }
     }
 }
@@ -70,12 +82,11 @@ void EventQueue::removeEvent(Event* event)
     Agent* agent = event->agent();
     if(myAgentEvents.contains(agent))
     {
-        QList<Event*> events = myAgentEvents[agent];
-        myAgentEvents[agent].clear();
-        for(int i=0;i<events.size();++i)
-        {
-            myQueue.erase(events[i]);
-        }
+        myAgentEvents[agent].removeAll(event);
+        myQueue[event->time()].removeAll(event);
+        if(myQueue[event->time()].size()==0)
+            myQueue.remove(event->time());
+        delete event;
     }
 }
 
@@ -86,8 +97,12 @@ unsigned EventQueue::size() const
 
 void EventQueue::clear()
 {
-    for(std::set<Event*>::iterator it=myQueue.begin();it!=myQueue.end();++it)
-        delete *it;
+    for(QMap<uint64_t,QList<Event*> >::iterator it=myQueue.begin();it!=myQueue.end();++it)
+    {
+
+        for(int i=0;i<it.value().size();++i)
+           delete it.value()[i];
+    }
     myQueue.clear();
     myAgentEvents.clear();
 }

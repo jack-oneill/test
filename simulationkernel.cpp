@@ -1,6 +1,7 @@
 #include "simulationkernel.h"
 #include <QThread>
 #include "agentfactory.h"
+#include "scoreboard.h"
 SimulationKernel::SimulationKernel(QObject *parent) :
     QObject(parent)
 {
@@ -13,6 +14,13 @@ SimulationKernel::SimulationKernel(QObject *parent) :
 }
 SimulationKernel::~SimulationKernel()
 {
+    mySimulationStopped=true;
+    myEventQueue->clear();
+    myWorld->clear();
+    for(int i=0;i<myTriggeredEvents.size();++i)
+    {
+        delete myTriggeredEvents[i];
+    }
     delete myEventQueue;
 }
 
@@ -58,7 +66,9 @@ void SimulationKernel::processDeltaCycles()
 {
     while(myEventQueue->front()!=NULL && myCurrentTime==myEventQueue->front()->time() && !mySimulationStopped)
     {
-        myEventQueue->pop()->execute();
+        Event* event = myEventQueue->pop();
+        event->execute();
+        myTriggeredEvents.append(event);
     }
 }
 
@@ -112,10 +122,12 @@ void SimulationKernel::start()
         pause();
     else
     {
+        ScoreBoard::instance()->addSheet("Simulation");
         myCurrentTime=0;
         new EventStartSimulation(this);
         eventLoop();
     }
+    ScoreBoard::instance()->last()->print();
     emit simulationEnded();
 }
 
@@ -131,5 +143,10 @@ void SimulationKernel::stop()
     mySimulationStopped=true;
     myEventQueue->clear();
     myWorld->clear();
+    for(int i=0;i<myTriggeredEvents.size();++i)
+    {
+        delete myTriggeredEvents[i];
+    }
+    myTriggeredEvents.clear();
     AgentFactory::instance()->reset();
 }
