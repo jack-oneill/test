@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     regressionrunner.cpp \
     outputgenerator.cpp \
     utilities.cpp \
-    scoreboard.cpp
+    scoreboard.cpp \
+    vehicledispatcher.cpp
 
 HEADERS  += mainwindow.h \
     agent.h \
@@ -71,4 +72,5 @@ HEADERS  += mainwindow.h \
     regressionrunner.h \
     outputgenerator.h \
     utilities.h \
-    scoreboard.h
+    scoreboard.h \
+    vehicledispatcher.h

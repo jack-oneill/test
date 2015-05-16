@@ -9,6 +9,7 @@
 #include "simulationkernel.h"
 #include "customergenerationprocess.h"
 #include "customergenerator.h"
+#include  "gui/statistics.h"
 #include "customergeneratoroffline.h"
 #include "vehiclerouter.h"
 #include "agentfactory.h"
@@ -24,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     myLog = new QTextEdit(this);
     myLog->setReadOnly(true);
     myTabWidget->addTab(myLog,"Log");
+    Statistics* stat  = new Statistics(this);
+    stat->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    myTabWidget->addTab(stat,"Statistics");
     mySettings = new Settings(this);
     myTabWidget->addTab(mySettings,"Settings");
     initialize();

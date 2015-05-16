@@ -46,6 +46,16 @@ void SimGraphicsView::setWorld(World* wrld)
     QPen pen(QColor("blue"),0.2);
     QPointF offset=myWorld->network()->center();
     uint64_t skip=0;
+    double pixPerM=0;
+    lemon::SmartDigraph::ArcIt testit(*graph);
+    double km =(*net->distanceMap())[testit];
+    posA=(*net->positionMap())[graph->source(testit)]+offset;
+    posB=(*net->positionMap())[graph->target(testit)]+offset;
+    posA.setY(-1*posA.y());
+    posB.setY(-1*posB.y());
+    posA=1000*posA;
+    posB=1000*posB;
+    pixPerM=qSqrt(QPointF::dotProduct(posA-posB,posA-posB))/(km*1000);
     for(lemon::SmartDigraph::ArcIt ait(*graph);ait!=lemon::INVALID;++ait)
     {
        skip++;
@@ -65,6 +75,20 @@ void SimGraphicsView::setWorld(World* wrld)
        sline->setPen(pen);
        myScene->addItem(sline);
     }
+    foreach(Neighborhood* neigh,net->neigborhoods())
+    {
+        QGraphicsEllipseItem* item = new QGraphicsEllipseItem(NULL);
+        item->setRect((neigh->center().x()+offset.x())*1000,(neigh->center().y()+offset.y())*-1000,neigh->radius()*pixPerM,neigh->radius()*pixPerM);
+        item->setBrush(Qt::red);
+        item->setOpacity(.5);
+        item->setToolTip(neigh->name());
+        QPen pen = item->pen();
+        pen.setWidth(0);
+        item->setPen(pen);
+        myScene->addItem(item);
+
+    }
+
     pen.setColor(Qt::red);
     connect(myWorld,SIGNAL(customerAdded(Customer*)),this,SLOT(addCustomer(Customer*)));
     connect(myWorld,SIGNAL(vehicleAdded(Vehicle*)),this,SLOT(addVehicle(Vehicle*)));
