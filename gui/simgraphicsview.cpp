@@ -212,7 +212,7 @@ bool SimGraphicsView::viewportEvent(QEvent *event)
                 if(myZoomValue<0)
                     myZoomValue=0;
                 setupMatrix();
-                qDebug()<<myZoomValue;
+         //       qDebug()<<myZoomValue;
                 return true;
             }
         }
