@@ -9,10 +9,13 @@ private:
     OutputGenerator();
     ~OutputGenerator();
     QFile myFile;
+    QFile myFileCust;
     QTextStream myStream;
+    QTextStream myStreamCust;
 public:
     static OutputGenerator* instance();
     void write(const QString&);
+    void writeCust(const QString&);
     void open(const QString&);
     void close();
 };

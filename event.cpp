@@ -144,17 +144,12 @@ void EventDropOff::execute()
     vehicle->removeCustomer(myCustomer);
     Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" delivered customer "+QString::number(myCustomer->id())+" at node "
                         +QString::number((*myAgent->world()->network()->nodeIdMap())[myCustomer->origin()]);
-    QString fill;
-    for(int i=0;i<myKernel->world()->vehicles()[0]->capacity()-2;++i)
-    {
-       fill+="0,";
-    }
-    OutputGenerator::instance()->write(QString::number(myCustomer->id()) + ","+
+    OutputGenerator::instance()->writeCust(QString::number(myCustomer->id()) + ","+
                            QString::number(myTime/60.0)+","+
                            QString::number(myCustomer->pickUpTime()/60.0)+","+
                            QString::number(myCustomer->optimalTime()/60.0) +","+
                            QString::number((myTime-myCustomer->pickUpTime())/60.0) +","+
-                           fill+
+                           QString::number((myCustomer->pickUpTime()-myCustomer->requestTime())/60.0)+
                            "3" );
     myCustomer->world()->removeCustomer(myCustomer);
     QString subline;
@@ -286,17 +281,16 @@ void EventShowUp::execute()
     customer->setRequestTime(time());
     myKernel->world()->addCustomer(customer);
     Logger::instance()<<25<<myTime<<("Customer "+QString::number(customer->id())+" appeared.");
-    QString fill;
-    for(int i=0;i<myKernel->world()->vehicles()[0]->capacity()-2;++i)
-    {
-       fill+="0,";
-    }
-    OutputGenerator::instance()->write(QString::number(customer->id()) + ","+
+    double idist = VehicleRouter::instance(customer->world())->getRoute(customer->origin(),customer->destination(),customer->world()->network()).second;
+    customer->setIdealDistance(idist);
+    customer->setOptimalTime((uint64_t)ceil(idist/SPEED));
+
+    OutputGenerator::instance()->writeCust(QString::number(customer->id()) + ","+
                            QString::number(myTime/60.0)+","+
                            "-1,"+
+                           QString::number(customer->optimalTime()/60.0)+
                            "-1,"+
                            "-1,"+
-                           fill +
                            "3" );
     /*
     uint64_t tim=CustomerGenerationProcess::instance()->next();
@@ -308,9 +302,6 @@ void EventShowUp::execute()
     double idist = VehicleRouter::instance(customer->world())->getRoute(customer->origin(),customer->destination(),customer->world()->network()).second;
     customer->setIdealDistance(idist);
     Customer* ncust = AgentFactory::instance()->newCustomer("Customer",origin,destination,this->myKernel->world());*/
-    double idist = VehicleRouter::instance(customer->world())->getRoute(customer->origin(),customer->destination(),customer->world()->network()).second;
-    customer->setIdealDistance(idist);
-    customer->setOptimalTime(idist/SPEED);
     assignVehicle();
     //new EventShowUp(ncust,myTime+tim,myKernel);
 }
