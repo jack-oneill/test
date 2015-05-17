@@ -47,6 +47,8 @@ void OutputGenerator::open(const QString& file)
 
 void OutputGenerator::close()
 {
+    myStream.flush();
+    myStreamCust.flush();
    if(myFile.isOpen())
        myFile.close();
    if(myFileCust.isOpen())

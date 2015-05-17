@@ -49,8 +49,8 @@ void SimGraphicsView::setWorld(World* wrld)
     double pixPerM=0;
     lemon::SmartDigraph::ArcIt testit(*graph);
     double km =(*net->distanceMap())[testit];
-    posA=(*net->positionMap())[graph->source(testit)]+offset;
-    posB=(*net->positionMap())[graph->target(testit)]+offset;
+    posA=(*net->positionMap())[graph->source(testit)];//+offset;
+    posB=(*net->positionMap())[graph->target(testit)];//+offset;
     posA.setY(-1*posA.y());
     posB.setY(-1*posB.y());
     posA=1000*posA;
@@ -63,22 +63,30 @@ void SimGraphicsView::setWorld(World* wrld)
            continue;
        a=graph->source(ait);
        b=graph->target(ait);
-       posA=(*net->positionMap())[a]+offset;
-       posB=(*net->positionMap())[b]+offset;
+       posA=(*net->positionMap())[a]-offset;
+       posB=(*net->positionMap())[b]-offset;
        posA.setY(-1*posA.y());
        posB.setY(-1*posB.y());
        line.setP1(posA*1000);
        line.setP2(posB*1000);
        //qDebug()<<line;
        StreetLine* sline = new StreetLine(line);
+       sline->setToolTip(QString::number((*net->positionMap())[a].x())+", "+QString::number((*net->positionMap())[a].y())
+       +" to "+QString::number((*net->positionMap())[b].x())+", "+QString::number((*net->positionMap())[b].y()));
        sline->setZValue(-1);
        sline->setPen(pen);
        myScene->addItem(sline);
     }
+    QGraphicsEllipseItem* zeroZero= new QGraphicsEllipseItem(NULL);
+    zeroZero->setRect(0,0,5,5);
+    qDebug()<<"Offset "<<offset;
+    zeroZero->setBrush(Qt::green);
+    myScene->addItem(zeroZero);
     foreach(Neighborhood* neigh,net->neigborhoods())
     {
         QGraphicsEllipseItem* item = new QGraphicsEllipseItem(NULL);
-        item->setRect((neigh->center().x()+offset.x())*1000,(neigh->center().y()+offset.y())*-1000,neigh->radius()*pixPerM,neigh->radius()*pixPerM);
+        double dwidth = neigh->radius()*pixPerM;
+        item->setRect((neigh->center().x()-offset.x())*1000-dwidth,(neigh->center().y()-offset.y())*-1000-dwidth,2*dwidth,2*dwidth);
         item->setBrush(Qt::red);
         item->setOpacity(.5);
         item->setToolTip(neigh->name());
