@@ -64,12 +64,12 @@ void World::addVehicle(Vehicle* vhl)
 void World::addCustomer(Customer* cust)
 {
     myCustomers[cust->id()]=cust;
-    //emit customerAdded(cust);
+    emit customerAdded(cust);
 }
 void World::removeCustomer(Customer * cust)
 {
     myCustomers.remove(cust->id());
-    //emit customerDestroyed(cust);
+    emit customerDestroyed(cust);
     delete cust;
 }
 
@@ -80,6 +80,11 @@ void World::removeVehicle(Vehicle *veh)
     delete veh;
 
 }
+void World::takeCustomer(Customer* cust)
+{
+   emit customerTaken(cust);
+}
+
 void World::clear()
 {
     for(QMap<uint64_t,Customer*>::iterator it = myCustomers.begin();it!=myCustomers.end();++it)

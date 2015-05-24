@@ -11,6 +11,7 @@ SimulationKernel::SimulationKernel(QObject *parent) :
     myEventQueue=new EventQueue();
     mySimulationStopped=true;
     mySimulationPaused=false;
+    myViewRefreshMutex=new QMutex();
 }
 SimulationKernel::~SimulationKernel()
 {
@@ -113,6 +114,11 @@ void SimulationKernel::removeEvents(Vehicle* vehicle)
 void SimulationKernel::setTimeLimit(uint64_t hours)
 {
     myTimeLimit=hours*3600;
+}
+
+QMutex& SimulationKernel::viewRefreshMutex()
+{
+    return *myViewRefreshMutex;
 }
 
 void SimulationKernel::start()

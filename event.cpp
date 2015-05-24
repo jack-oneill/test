@@ -87,6 +87,11 @@ void EventMove::execute()
                            QString::number((*this->agent()->world()->network()->arcIdMap())[vehicle->arc()])+","+
                            subline+
                            "0" );
+    //Reroute the vehicle to a neighborhood
+    if(myIndex==myTotal)
+    {
+
+    }
 }
 
 EventPickUp::EventPickUp(Customer* cust, Vehicle* veh,uint64_t tim,SimulationKernel* ker) : Event(veh,tim,ker)
@@ -106,6 +111,7 @@ void EventPickUp::execute()
     vehicle->addCustomer(myCustomer);
     myCustomer->setVehicle(vehicle);
     myCustomer->setPickUpTime(myTime);
+    myCustomer->world()->takeCustomer(myCustomer);
     Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" picked up customer "+QString::number(myCustomer->id())+" at node "
                         +QString::number((*myAgent->world()->network()->nodeIdMap())[myCustomer->origin()]);
     QString subline;
@@ -144,6 +150,7 @@ Customer* EventDropOff::customer()
 
 void EventDropOff::execute()
 {
+    QMutexLocker lock(&myKernel->viewRefreshMutex());
     Vehicle* vehicle = (Vehicle*) myAgent;
     vehicle->removeCustomer(myCustomer);
     Logger::instance()<<25<<myTime<<"Vehicle "+QString::number(vehicle->id())+" delivered customer "+QString::number(myCustomer->id())+" at node "

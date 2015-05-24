@@ -29,6 +29,12 @@ uint64_t Agent::id()
 {
     return myId;
 }
+
+QString Agent::name()
+{
+    return myName;
+}
+
 World* Agent::world()
 {
     return myWorld;

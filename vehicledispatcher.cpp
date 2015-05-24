@@ -1,6 +1,6 @@
 #include "vehicledispatcher.h"
 
-VehicleDispatcher::VehicleDispatcher(QObject *parent) :
+VehicleDispatcher::VehicleDispatcher(World*,QObject *parent) :
     QObject(parent)
 {
 }

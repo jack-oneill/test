@@ -13,7 +13,8 @@ class SimulationKernel : public QObject
 {
     Q_OBJECT
 private:
-    QMutexLocker* myLock;
+    //QMutexLocker* myLock;
+    QMutex* myViewRefreshMutex;
     QWaitCondition* myCondition;
 protected:
     World* myWorld;
@@ -46,6 +47,7 @@ public:
     void visualizeMe(Agent*);
     void removeEvents(Vehicle*);
     void setTimeLimit(uint64_t hours);
+    QMutex& viewRefreshMutex();
 signals:
     void visualize();
     void simulationEnded();

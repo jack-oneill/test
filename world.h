@@ -29,6 +29,7 @@ public:
     void addCustomer(Customer*);
     void removeCustomer(Customer*);
     void removeVehicle(Vehicle*);
+    void takeCustomer(Customer*);
     void clear();
     bool valid();
     RoutingNetwork* network() const;

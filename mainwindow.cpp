@@ -197,9 +197,14 @@ void MainWindow::startSimulation()
     VehicleRouter::instance(myWorld)->setIgnoreWaitingTime(mySettings->ignoreWaitingTime());
     //kernel->setTimeLimit(mySettings->timeLimit());
     connect(mySimulationThread,SIGNAL(started()),myRegressionRunner,SLOT(start()));
+    connect(mySimulationThread,SIGNAL(started()),myView,SLOT(startRefreshCycle()));
+
     //connect(kernel,SIGNAL(simulationEnded()),mySimulationThread,SLOT(quit()));
     connect(myRegressionRunner,SIGNAL(regressionEnded()),mySimulationThread,SLOT(quit()));
+    connect(myRegressionRunner,SIGNAL(regressionEnded()),myView,SLOT(stopRefreshCycle()));
     mySimulationThread->start();
+    myView->startRefreshCycle();
+
 }
 
 void MainWindow::stopSimulation()

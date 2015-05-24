@@ -8,9 +8,8 @@ class StreetLine : public QGraphicsLineItem
 public:
     StreetLine(QGraphicsItem *parent = 0);
     StreetLine(const QLineF&, QGraphicsItem* parent = 0);
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
 protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 };
 

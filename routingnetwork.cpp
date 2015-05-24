@@ -16,6 +16,7 @@ Neighborhood::Neighborhood(const QString& name, const QPointF& center, const dou
     myRadius=rad;
     myCenter=center;
     myName=name;
+    myCentralNode = lemon::INVALID;
 }
 Neighborhood::~Neighborhood()
 {
@@ -29,6 +30,11 @@ QString Neighborhood::name() const
 void Neighborhood::addNode(const lemon::SmartDigraph::Node& node,double& weight)
 {
     myNodes.append(QPair<lemon::SmartDigraph::Node,double>(node,weight));
+}
+
+void Neighborhood::setCentralNode(const lemon::SmartDigraph::Node& nod)
+{
+   myCentralNode=nod;
 }
 
 QVector<QPair<lemon::SmartDigraph::Node,double> > Neighborhood::nodes() const
@@ -63,6 +69,11 @@ lemon::SmartDigraph::Node Neighborhood::get(const double& pval) const
             return myNodes[i].first;
     }
     return myNodes[myNodes.size()-1].first;
+}
+
+void Neighborhood::centralNode() const
+{
+    return myCentralNode;
 }
 
 RoutingNetwork::RoutingNetwork(const QString& file)
@@ -184,7 +195,7 @@ bool RoutingNetwork::loadNeighborhoods(QFile &file)
         {
             QPointF np=(*myPositionMap)[nit];
             Neighborhood* neigh = myNeighborhoods[i];
-            double di = Utilities::dist(np.x(),np.y(),neigh->center().x(),neigh->center().y());
+            double di = Utilities::dist(np.y(),np.x(),neigh->center().y(),neigh->center().x());
             if(di<=neigh->radius())
             {
                 nList.append(neigh);
@@ -280,6 +291,7 @@ RoutingNetwork::PositionMap* RoutingNetwork::positionMap() const
 }
 QPointF RoutingNetwork::center() const
 {
+
     return myCenter;
 }
 QVector<Neighborhood*> RoutingNetwork::neigborhoods() const

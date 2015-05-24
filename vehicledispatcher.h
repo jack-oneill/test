@@ -11,8 +11,9 @@ class Vehicle;
 class VehicleDispatcher : public QObject
 {
     Q_OBJECT
+    World* myWorld;
 public:
-    explicit VehicleDispatcher(QObject *parent = 0);
+    explicit VehicleDispatcher(World*,QObject *parent = 0);
     QList<QPair<lemon::SmartDigraph::Node,double> > route(Vehicle*);
 signals:
 

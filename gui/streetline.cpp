@@ -3,18 +3,21 @@
 #include <QPainter>
 StreetLine::StreetLine(QGraphicsItem *parent ) : QGraphicsLineItem(parent)
 {
- //   setCacheMode(QGraphicsItem::ItemCoordinateCache);
+    //setCacheMode(QGraphicsItem::ItemCoordinateCache);
+    //setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 StreetLine::StreetLine(const QLineF &line, QGraphicsItem* parent ) : QGraphicsLineItem(line,parent)
 {
-//    setCacheMode(QGraphicsItem::ItemCoordinateCache);
+    //setCacheMode(QGraphicsItem::ItemCoordinateCache);
+    //setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 void StreetLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    if(option->levelOfDetailFromTransform(painter->worldTransform())*line().length()<3)
+    Q_UNUSED(widget);
+    if(option->levelOfDetailFromTransform(painter->worldTransform())<3 && line().length()<1)
         return;
-    //painter->drawEllipse(line().p1(),2,2);
-    //painter->drawEllipse(line().p2(),2,2);
+    if(option->levelOfDetailFromTransform(painter->worldTransform())<2 && line().length()<0.5)
+        return;
     QGraphicsLineItem::paint(painter,option,widget);
 }

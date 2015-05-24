@@ -19,6 +19,7 @@ public:
     virtual ~Agent();
     virtual QPair<lemon::SmartDigraph::Node,double> position(const uint64_t& =0);
     t_Agent type();
+    QString name();
     uint64_t id();
     World* world();
 };
