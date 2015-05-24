@@ -35,6 +35,7 @@ public:
     bool load(const QString&);
     void generate(const unsigned &num);
     QVector<lemon::SmartDigraph::Node> disperseVehicles(const unsigned& num);
+    QVector<CustomerGeneratorSample*> samples() const;
 };
 
 #endif // CUSTOMERGENERATOROFFLINE_H

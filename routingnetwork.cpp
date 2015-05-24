@@ -49,6 +49,16 @@ QPointF Neighborhood::center() const
 {
     return myCenter;
 }
+bool Neighborhood::contains(const lemon::SmartDigraph::Node& nod) const
+{
+    //Linear search ... stupid
+    for(int i=0;i<myNodes.size();++i)
+    {
+        if(myNodes[i].first==nod)
+            return true;
+    }
+    return false;
+}
 
 void Neighborhood::toCdf()
 {
@@ -71,7 +81,7 @@ lemon::SmartDigraph::Node Neighborhood::get(const double& pval) const
     return myNodes[myNodes.size()-1].first;
 }
 
-void Neighborhood::centralNode() const
+lemon::SmartDigraph::Node Neighborhood::centralNode() const
 {
     return myCentralNode;
 }
@@ -211,6 +221,20 @@ bool RoutingNetwork::loadNeighborhoods(QFile &file)
     for(int i=0;i<myNeighborhoods.size();++i)
     {
         myNeighborhoods[i]->toCdf();
+        QVector<QPair<lemon::SmartDigraph::Node,double> > nodes = myNeighborhoods[i]->nodes();
+        double minDist=6000;
+        Neighborhood* neigh = myNeighborhoods[i];
+        for(int j=0;j<nodes.size();++j)
+        {
+            QPointF np=(*myPositionMap)[nodes[j].first];
+            double di = Utilities::dist(np.y(),np.x(),neigh->center().y(),neigh->center().x());
+            if(di<minDist)
+            {
+                minDist=di;
+                neigh->setCentralNode(nodes[j].first);
+            }
+
+        }
         qDebug()<<"Neighborhood "+QString::number(i)+" has "+QString::number(myNeighborhoods[i]->nodes().size())+" nodes ";
     }
     return true;

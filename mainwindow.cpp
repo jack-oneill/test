@@ -14,12 +14,14 @@
 #include "vehiclerouter.h"
 #include "agentfactory.h"
 #include "regressionrunner.h"
+#include "vehicledispatcher.h"
 #include <QStatusBar>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     Logger::instance().setFilterLevel(200);
-    myView=new SimGraphicsView(this);
+    myTimeLabel=new QLabel(this);
+    myView=new SimGraphicsView(myTimeLabel,this);
     myTabWidget = new QTabWidget(this);
     myTabWidget->addTab(myView,"Map");
     myLog = new QTextEdit(this);
@@ -38,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&Logger::instance(),SIGNAL(newMessage(const QString&)),myLog,SLOT(append(const QString&)));
     myStatusBar=new QStatusBar(this);
     setStatusBar(myStatusBar);
+    myStatusBar->addWidget(new QLabel("Time: ",this));
+    myStatusBar->addWidget(myTimeLabel);
     mySimulationThread=NULL;
     myRegressionRunner=NULL;
     myCustomerGenerator=NULL;
@@ -195,6 +199,7 @@ void MainWindow::startSimulation()
     CustomerGenerationProcess::instance()->setRate(mySettings->generationRate());
     */
     VehicleRouter::instance(myWorld)->setIgnoreWaitingTime(mySettings->ignoreWaitingTime());
+    VehicleDispatcher::instance()->setup(myWorld,myCustomerGenerator);
     //kernel->setTimeLimit(mySettings->timeLimit());
     connect(mySimulationThread,SIGNAL(started()),myRegressionRunner,SLOT(start()));
     connect(mySimulationThread,SIGNAL(started()),myView,SLOT(startRefreshCycle()));

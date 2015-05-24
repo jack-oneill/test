@@ -17,11 +17,12 @@
 #include <QGraphicsItemGroup>
 #include "streetline.h"
 #define MY_FACTOR 1000
-SimGraphicsView::SimGraphicsView(QWidget *parent) :
+SimGraphicsView::SimGraphicsView(QLabel* lab, QWidget *parent) :
     QGraphicsView(parent)
 {
     myScene=NULL;
     myZoomValue=250;
+    myTimeLabel=lab;
     totalScaleFactor=1;
     setDragMode(ScrollHandDrag);
     setRenderHint(QPainter::Antialiasing, false);
@@ -142,6 +143,9 @@ World* SimGraphicsView::world()
 void SimGraphicsView::refresh()
 {
     QMutexLocker locker(&myWorld->kernel()->viewRefreshMutex());
+    if(myWorld->vehicles().size()==0)
+        return;
+    QMainWindow* mainWindow=(QMainWindow*)parent();
     QHash<Agent*,QGraphicsItem*>::iterator it= myItemMap.begin();
     for(;it!=myItemMap.end();++it)
     {
@@ -164,6 +168,12 @@ void SimGraphicsView::refresh()
         }
     }
     myScene->update();
+    uint64_t time = myWorld->time();
+    uint64_t hours = time/3600;
+    uint64_t minutes = time/60-hours*60;
+    uint64_t seconds = time-hours*3600-minutes*60;
+    if(myTimeLabel)
+        myTimeLabel->setText(QString::number(hours)+":"+QString::number(minutes)+":"+QString::number(seconds));
 }
 
 void SimGraphicsView::addVehicle(Vehicle* veh)

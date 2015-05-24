@@ -1,4 +1,5 @@
 #include "vehicle.h"
+#include <QDebug>
 #include <cmath>
 #include "world.h"
 Vehicle::Vehicle( uint64_t id,unsigned capacity, QString name, const lemon::SmartDigraph::Node&  pos, World *world) : Agent(id, name,VEHICLE,pos,world)
@@ -34,8 +35,8 @@ void Vehicle::setRouteAndSpeed(const QList<QPair<lemon::SmartDigraph::Node, doub
     myCurrentPos=0;
     if(myRouteAndSpeed.size()>0)
         myPosition=myRouteAndSpeed.front().first;
-    else
-        myPosition=lemon::INVALID;
+    /*else
+        myPosition=lemon::INVALID;*/
 }
 
 QList<QPair<lemon::SmartDigraph::Node, double> > Vehicle::routeAndSpeed()
@@ -127,4 +128,7 @@ void Vehicle::move(const uint64_t& time)
 {
     myLastMoveTime=time;
     myCurrentPos++;
+    myPosition=myRouteAndSpeed[myCurrentPos].first;
+    if(myPosition==lemon::INVALID)
+        qDebug()<<"ERROR: Position Invalid for Vehicle "+QString::number(this->id());
 }

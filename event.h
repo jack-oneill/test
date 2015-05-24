@@ -103,4 +103,11 @@ public:
 };
 
 
+class EventRepositionVehicle : public Event
+{
+public:
+    EventRepositionVehicle(Vehicle*,uint64_t,SimulationKernel*);
+    virtual void execute();
+};
+
 #endif // EVENT_H

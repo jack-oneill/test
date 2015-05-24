@@ -1,4 +1,5 @@
 #include "simulationkernel.h"
+#include <QMutexLocker>
 #include <QThread>
 #include "agentfactory.h"
 #include "scoreboard.h"
@@ -146,6 +147,7 @@ void SimulationKernel::pause()
 
 void SimulationKernel::stop()
 {
+    QMutexLocker locker(myViewRefreshMutex);
     mySimulationStopped=true;
     myEventQueue->clear();
     myWorld->clear();

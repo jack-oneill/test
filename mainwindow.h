@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QToolBar>
+#include <QLabel>
 #include <QThread>
 #include "gui/simgraphicsview.h"
 #include <QTextEdit>
@@ -24,7 +25,6 @@ private:
     QThread* mySimulationThread;
     RegressionRunner* myRegressionRunner;
     CustomerGeneratorOffline* myCustomerGenerator;
-
     SimGraphicsView* myView;
     Settings* mySettings;
     QTabWidget* myTabWidget;
@@ -33,6 +33,7 @@ private:
     QMenu* myFileMenu;
     QMenu* myEditMenu;
     QMenu* mySimulationMenu;
+    QLabel* myTimeLabel;
     QToolBar* mySimulationToolBar;
     void buildMenus();
     void buildToolBars();

@@ -17,17 +17,20 @@ private:
     QString myName;
     QVector<QPair<lemon::SmartDigraph::Node,double> > myNodes;
     double myRadius;
+    lemon::SmartDigraph::Node myCentralNode;
 public:
     Neighborhood(const QString &, const QPointF&, const double );
     ~Neighborhood();
     QString name() const;
     void addNode(const lemon::SmartDigraph::Node&,double&);
+    void setCentralNode(const lemon::SmartDigraph::Node&);
     QVector<QPair<lemon::SmartDigraph::Node,double> > nodes() const;
     double radius() const;
     QPointF center() const;
     void toCdf();
     lemon::SmartDigraph::Node get(const double&) const;
-
+    lemon::SmartDigraph::Node centralNode() const;
+    bool contains(const lemon::SmartDigraph::Node& nod) const;
 };
 
 class RoutingNetwork

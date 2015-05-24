@@ -1,6 +1,6 @@
 #ifndef SIMGRAPHICSVIEW_H
 #define SIMGRAPHICSVIEW_H
-
+#include <QLabel>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QHash>
@@ -17,8 +17,9 @@ class SimGraphicsView : public QGraphicsView
     void setupMatrix();
     qreal totalScaleFactor;
     QTimer* myRefreshTimer;
+    QLabel* myTimeLabel;
 public:
-    explicit SimGraphicsView(QWidget *parent = 0);
+    explicit SimGraphicsView(QLabel* = 0,QWidget *parent = 0);
     void setWorld(World*);
     World* world();
 protected:

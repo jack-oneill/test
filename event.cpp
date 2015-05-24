@@ -1,4 +1,5 @@
 #include "event.h"
+#include "vehicledispatcher.h"
 #include <QDebug>
 #include "customer.h"
 #include "vehicle.h"
@@ -43,6 +44,11 @@ EventStartSimulation::EventStartSimulation(SimulationKernel* ker ) : Event(NULL,
 
 void EventStartSimulation::execute()
 {
+    QList<Vehicle*> vehicles  = myKernel->world()->vehicles();
+    for(int i=0;i<vehicles.size();++i)
+    {
+        new EventRepositionVehicle(vehicles[i],3000,myKernel);
+    }
     /*uint64_t tim=CustomerGenerationProcess::instance()->next();
     QPair<lemon::SmartDigraph::Node,lemon::SmartDigraph::Node>  nodes(lemon::INVALID,lemon::INVALID);
     while(nodes.first==nodes.second)
@@ -90,7 +96,8 @@ void EventMove::execute()
     //Reroute the vehicle to a neighborhood
     if(myIndex==myTotal)
     {
-
+        vehicle->setRouteAndSpeed(QList<QPair<lemon::SmartDigraph::Node,double> >(),0);
+        new EventRepositionVehicle(vehicle,myTime+300,myKernel);
     }
 }
 
@@ -376,4 +383,40 @@ void EventSnooze::execute()
     Logger::instance()<<50<<myTime<<"Retrying customer "+QString::number(cust->id());
     //cust->setRequestTime(cust->requestTime()+myDelta);
     assignVehicle();
+}
+
+
+EventRepositionVehicle::EventRepositionVehicle(Vehicle* veh,uint64_t tim,SimulationKernel* ker) : Event(veh,tim,ker)
+{
+}
+
+void EventRepositionVehicle::execute()
+{
+    Vehicle* veh = (Vehicle*)myAgent;
+    uint64_t tim = myTime;
+    if(veh->routeAndSpeed().size()==0)
+    {
+        Logger::instance()<<50<<myTime<<"Vehicle "+QString::number(veh->id())+" will be repositioned.";
+        VehicleDispatcher::instance()->route(veh);
+        lemon::SmartDigraph* graph = myAgent->world()->network()->graph();
+        double dist = 0;
+        QList<QPair<lemon::SmartDigraph::Node,double> > route = veh->routeAndSpeed();
+        for(int i=1;i<route.size();++i)
+        {
+            for(lemon::SmartDigraph::OutArcIt oait(*graph,route[i-1].first);oait!=lemon::INVALID;++oait)
+            {
+               if(graph->target(oait)==route[i].first)
+               {
+                  dist = (*myAgent->world()->network()->distanceMap())[oait];
+                  break;
+               }
+            }
+            tim+=(uint64_t)ceil(dist*1000/route[i].second);
+            new EventMove(veh,tim,(unsigned)i,(unsigned)route.size()-1,myKernel);
+        }
+        if(route.size()<=1)
+        {
+            new EventRepositionVehicle(veh,myTime+3000,myKernel);
+        }
+    }
 }

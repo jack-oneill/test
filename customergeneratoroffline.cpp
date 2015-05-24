@@ -139,12 +139,6 @@ void CustomerGeneratorOffline::generate(const unsigned& num)
         else
             time=vnoise+sel->start();
         new EventShowUp(cust,time,myWorld->kernel());
-        /*cust = AgentFactory::instance()->newCustomer("Customer "+QString::number(i)+" Return",target,source,myWorld);
-        time=0;
-        vnoise = noise(rng)*60;
-        if(vnoise<0 && sel->ret()>= -1*vnoise)
-            time=vnoise+sel->ret();
-        new EventShowUp(cust,time,myWorld->kernel());*/
     }
 }
 
@@ -175,4 +169,9 @@ QVector<lemon::SmartDigraph::Node> CustomerGeneratorOffline::disperseVehicles(co
         nodes[i]=source;
     }
     return nodes;
+}
+
+QVector<CustomerGeneratorSample*> CustomerGeneratorOffline::samples() const
+{
+   return mySamples;
 }
