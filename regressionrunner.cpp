@@ -82,7 +82,7 @@ void RegressionRunner::start()
             myKernel->world()->addVehicle(veh);
         }
         qDebug()<<"RegressionRunner: " +QTime::currentTime().toString()+ " Starting simulation "+QString::number(i);
-        OutputGenerator::instance()->open("simulation_run_"+QString::number(i)+".txt");
+        OutputGenerator::instance()->open("simulation_run_"+QString::number(i)+"_"+QString::number(mySimulations[i][0])+"_"+QString::number(mySimulations[i][1])+".txt");
         myKernel->start();
         myKernel->stop();
         OutputGenerator::instance()->close();

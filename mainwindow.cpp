@@ -28,8 +28,15 @@ MainWindow::MainWindow(QWidget *parent)
     myLog->setReadOnly(true);
     myTabWidget->addTab(myLog,"Log");
     Statistics* stat  = new Statistics(this);
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setWidget(stat);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     stat->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    myTabWidget->addTab(stat,"Statistics");
+    scrollArea->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+    myTabWidget->addTab(scrollArea,"Statistics");
     mySettings = new Settings(this);
     myTabWidget->addTab(mySettings,"Settings");
     initialize();
@@ -158,6 +165,7 @@ void MainWindow::startSimulation()
        delete myRegressionRunner;
     if(myCustomerGenerator)
        delete myCustomerGenerator;
+    myView->clear();
     mySimulationThread = new QThread(this);
     SimulationKernel* kernel = new SimulationKernel();
     kernel->moveToThread(mySimulationThread);

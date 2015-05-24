@@ -113,11 +113,11 @@ double VehicleDispatcher::score(Vehicle* veh,const unsigned& nId)
     uint64_t start=myWorld->time();
     uint64_t end=0;
     uint64_t approxTimeAtPoint = distance*1.5/SPEED+start;
-    if(approxTimeAtPoint-900>start)
+    if(approxTimeAtPoint-1200>start)
     {
-        start=approxTimeAtPoint-900;
+        start=approxTimeAtPoint-1200;
     }
-    end=start+1800;
+    end=start+2400;
     unsigned customers=integrate(start,end,nId);
     /*if(customers==0)
         return 0;*/

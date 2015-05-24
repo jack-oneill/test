@@ -5,9 +5,11 @@
 #include <QSet>
 #include "agent.h"
 #include "customer.h"
+#include <QMutex>
 class Vehicle : public Agent
 {
 protected:
+    QMutex* myMutex;
     unsigned myCapacity;
     QList<QPair<lemon::SmartDigraph::Node,double> > myRouteAndSpeed;
     QSet<Customer*> myCustomers;
@@ -16,6 +18,7 @@ protected:
     double myInitialOffset;
 public:
     Vehicle(uint64_t,unsigned,QString,const lemon::SmartDigraph::Node&,World*);
+    virtual ~Vehicle();
     unsigned capacity();
     QSet<Customer*> customers();
     void setRouteAndSpeed(const QList<QPair<lemon::SmartDigraph::Node,double> >&, const double & =0);

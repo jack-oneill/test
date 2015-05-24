@@ -2,11 +2,17 @@
 #include <QDebug>
 #include <cmath>
 #include "world.h"
+#include <QMutexLocker>
 Vehicle::Vehicle( uint64_t id,unsigned capacity, QString name, const lemon::SmartDigraph::Node&  pos, World *world) : Agent(id, name,VEHICLE,pos,world)
 {
     myCapacity=capacity;
     myInitialOffset=0;
     myCurrentPos=0;
+    myMutex = new QMutex();
+}
+Vehicle::~Vehicle()
+{
+    delete myMutex;
 }
 unsigned Vehicle::capacity()
 {
@@ -30,6 +36,7 @@ QSet<Customer*> Vehicle::customers()
 
 void Vehicle::setRouteAndSpeed(const QList<QPair<lemon::SmartDigraph::Node, double> > &rs, const double& offset)
 {
+    QMutexLocker locker(myMutex);
     myRouteAndSpeed=rs;
     myInitialOffset=offset;
     myCurrentPos=0;
@@ -47,6 +54,7 @@ QList<QPair<lemon::SmartDigraph::Node, double> > Vehicle::routeAndSpeed()
 
 lemon::SmartDigraph::Arc Vehicle::arc()
 {
+    QMutexLocker locker(myMutex);
     lemon::SmartDigraph::Arc prevPos=lemon::INVALID;
     if(myRouteAndSpeed.size()<2)
         return prevPos;
@@ -80,6 +88,7 @@ lemon::SmartDigraph::Node Vehicle::nextPosition()
 
 QPair<lemon::SmartDigraph::Node,double> Vehicle::position(const uint64_t& time)
 {
+    QMutexLocker locker(myMutex);
     QPair<lemon::SmartDigraph::Node,double> rval;
     if(myCurrentPos==0 && myRouteAndSpeed.size()==0)
     {
@@ -115,6 +124,7 @@ QPair<lemon::SmartDigraph::Node,double> Vehicle::position(const uint64_t& time)
 
 double Vehicle::speed()
 {
+    QMutexLocker locker(myMutex);
     if(myCurrentPos>=myRouteAndSpeed.size())
         return 0;
     return myRouteAndSpeed[myCurrentPos].second;

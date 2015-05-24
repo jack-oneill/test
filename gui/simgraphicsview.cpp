@@ -172,8 +172,10 @@ void SimGraphicsView::refresh()
     uint64_t hours = time/3600;
     uint64_t minutes = time/60-hours*60;
     uint64_t seconds = time-hours*3600-minutes*60;
+    QTime tim;
+    tim.setHMS( (int)hours,(int)minutes,(int)seconds);
     if(myTimeLabel)
-        myTimeLabel->setText(QString::number(hours)+":"+QString::number(minutes)+":"+QString::number(seconds));
+        myTimeLabel->setText(tim.toString());
 }
 
 void SimGraphicsView::addVehicle(Vehicle* veh)
@@ -295,6 +297,15 @@ void SimGraphicsView::startRefreshCycle()
 {
     myRefreshTimer->setSingleShot(false);
     myRefreshTimer->start(1000);
+}
+
+void SimGraphicsView::clear()
+{
+    for(QHash<Agent*,QGraphicsItem*>::iterator it = myItemMap.begin();it!=myItemMap.end();++it)
+    {
+       delete it.value();
+    }
+    myItemMap.clear();
 }
 
 void SimGraphicsView::stopRefreshCycle()

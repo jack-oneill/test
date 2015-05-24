@@ -29,6 +29,7 @@ signals:
 
 public slots:
     void refresh();
+    void clear();
     void addVehicle(Vehicle*);
     void addCustomer(Customer*);
     void removeAgent(Agent*);
