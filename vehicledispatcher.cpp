@@ -182,7 +182,7 @@ void VehicleDispatcher::route(Vehicle * veh)
     }
     myTabuLists[veh].push_back(selected_index);
     myDispatchedVehicles[selected_index].append(myWorld->time());
-    qDebug()<<"Selected "+selected->name();
+    //qDebug()<<"Selected "+selected->name();
     if(myTabuLists[veh].size()>4)
         myTabuLists[veh].pop_front();
     QList<lemon::SmartDigraph::Node> troute =  VehicleRouter::instance(myWorld)->getRoute(veh->position(myWorld->time()).first,selected->centralNode(),myWorld->network()).first;
