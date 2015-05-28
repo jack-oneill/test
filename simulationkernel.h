@@ -51,6 +51,8 @@ public:
 signals:
     void visualize();
     void simulationEnded();
+    void simulationStarted(const QString&);
+    void resetWorld();
 public slots:
     void start();
     void pause();

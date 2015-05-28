@@ -13,6 +13,7 @@ SimulationKernel::SimulationKernel(QObject *parent) :
     mySimulationStopped=true;
     mySimulationPaused=false;
     myViewRefreshMutex=new QMutex();
+    connect(this,SIGNAL(simulationStarted(const QString&)),ScoreBoard::instance(),SLOT(addSheet(const QString&)));
 }
 SimulationKernel::~SimulationKernel()
 {
@@ -37,6 +38,8 @@ void SimulationKernel::setTimeWarp(double warp)
 void SimulationKernel::setWorld(World* world)
 {
    myWorld=world;
+   if(myWorld)
+       connect(this,SIGNAL(resetWorld()),myWorld,SLOT(clear()));
 }
 
 World* SimulationKernel::world()
@@ -129,7 +132,7 @@ void SimulationKernel::start()
         pause();
     else
     {
-        ScoreBoard::instance()->addSheet("Simulation");
+        emit simulationStarted(QString("Simulation"));
         myCurrentTime=0;
         new EventStartSimulation(this);
         eventLoop();
@@ -151,6 +154,7 @@ void SimulationKernel::stop()
     mySimulationStopped=true;
     myEventQueue->clear();
     myWorld->clear();
+    //emit resetWorld();
     for(int i=0;i<myTriggeredEvents.size();++i)
     {
         delete myTriggeredEvents[i];

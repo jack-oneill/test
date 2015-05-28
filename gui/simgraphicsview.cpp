@@ -180,6 +180,7 @@ void SimGraphicsView::refresh()
 
 void SimGraphicsView::addVehicle(Vehicle* veh)
 {
+    QMutexLocker lock(&myWorld->kernel()->viewRefreshMutex());
     QGraphicsItem* item =new VehicleView(veh);
     myItemMap[(Agent*)veh]=item;
     //item->setZValue(1);
@@ -213,9 +214,9 @@ void SimGraphicsView::removeAgent(Agent* agent)
     QHash<Agent*,QGraphicsItem*>::iterator it= myItemMap.find(agent);
     if(it!=myItemMap.end())
     {
-        myScene->removeItem(it.value());
+        //myScene->removeItem(it.value());
+        delete it.value();
         myItemMap.erase(it);
-        //delete it.value();
     }
 }
 

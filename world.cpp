@@ -88,10 +88,16 @@ void World::takeCustomer(Customer* cust)
 void World::clear()
 {
     for(QMap<uint64_t,Customer*>::iterator it = myCustomers.begin();it!=myCustomers.end();++it)
+    {
+        emit customerDestroyed(it.value());
         delete it.value();
+    }
     myCustomers.clear();
     for(QMap<uint64_t,Vehicle*>::iterator it = myVehicles.begin();it!=myVehicles.end();++it)
+    {
+        emit vehicleDestroyed(it.value());
         delete it.value();
+    }
     myVehicles.clear();
 }
 bool World::valid()

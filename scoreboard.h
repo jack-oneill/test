@@ -57,13 +57,13 @@ private:
     static ScoreBoard* myInstance;
 public:
     static ScoreBoard* instance();
-    ScoreSheet* addSheet(const QString&);
     void clear();
     ScoreSheet* last();
     QList<ScoreSheet*> sheets();
 signals:
     void newSheet(ScoreSheet*);
 public slots:
+    ScoreSheet* addSheet(const QString&);
 
 };
 

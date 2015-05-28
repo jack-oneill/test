@@ -27,10 +27,7 @@ public:
     QList<Event*> initialize();
     void addVehicle(Vehicle*);
     void addCustomer(Customer*);
-    void removeCustomer(Customer*);
-    void removeVehicle(Vehicle*);
     void takeCustomer(Customer*);
-    void clear();
     bool valid();
     RoutingNetwork* network() const;
 signals:
@@ -40,6 +37,9 @@ signals:
     void vehicleDestroyed(Agent*);
     void customerTaken(Customer*);
 public slots:
+    void clear();
+    void removeCustomer(Customer*);
+    void removeVehicle(Vehicle*);
 };
 
 #endif // WORLD_H
