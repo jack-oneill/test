@@ -13,6 +13,15 @@ class RoutingNetwork;
 #define SATISFACTION_TRESHOLD 0.8
 #define SPEED 6.5 //in m/s
 #define WAITING_TIME 10.0// in minutes
+class AStarCompare
+{
+protected:
+    lemon::IterableValueMap<lemon::SmartDigraph,lemon::SmartDigraph::Node,double>* myEstimate;
+public:
+    AStarCompare(lemon::IterableValueMap<lemon::SmartDigraph,lemon::SmartDigraph::Node,double>&);
+    bool operator() (const lemon::SmartDigraph::Node&, const lemon::SmartDigraph::Node&) const;
+};
+
 class VehicleRouter
 {
 protected:
@@ -41,6 +50,7 @@ public:
     World* world() const;
     virtual Vehicle* route(Customer*);
     std::pair <QList <lemon::SmartDigraph::Node>,double> getRoute (const lemon::SmartDigraph::Node& s,const lemon::SmartDigraph::Node& t,RoutingNetwork* net);
+    std::pair <QList <lemon::SmartDigraph::Node>,double> getRouteAStar (const lemon::SmartDigraph::Node& s,const lemon::SmartDigraph::Node& t,RoutingNetwork* net);
 };
 
 #endif // VEHICLEROUTER_H

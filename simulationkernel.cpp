@@ -3,6 +3,7 @@
 #include <QThread>
 #include "agentfactory.h"
 #include "scoreboard.h"
+#include <QDebug>
 SimulationKernel::SimulationKernel(QObject *parent) :
     QObject(parent)
 {
@@ -135,6 +136,7 @@ void SimulationKernel::start()
         emit simulationStarted(QString("Simulation"));
         myCurrentTime=0;
         new EventStartSimulation(this);
+        myTime.start();
         eventLoop();
     }
     ScoreBoard::instance()->last()->print();
@@ -151,6 +153,7 @@ void SimulationKernel::pause()
 void SimulationKernel::stop()
 {
     QMutexLocker locker(myViewRefreshMutex);
+    qDebug()<<"Simulation ran for "+QString::number(myTime.elapsed()/1000.0)+" seconds";
     mySimulationStopped=true;
     myEventQueue->clear();
     myWorld->clear();

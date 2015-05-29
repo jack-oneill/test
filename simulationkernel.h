@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QWaitCondition>
 #include <QMutexLocker>
+#include <QTime>
 #include "world.h"
 #include "event.h"
 #include "eventqueue.h"
@@ -14,6 +15,7 @@ class SimulationKernel : public QObject
     Q_OBJECT
 private:
     //QMutexLocker* myLock;
+    QTime myTime;
     QMutex* myViewRefreshMutex;
     QWaitCondition* myCondition;
 protected:

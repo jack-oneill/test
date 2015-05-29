@@ -9,6 +9,8 @@ private:
 public:
     static double dist(const double&,const double&, const double&,const double&);
     static double dist(const QPointF&, const QPointF&);
+    static double distKM(const double&,const double&, const double&,const double&);
+    static double distKM(const QPointF&, const QPointF&);
 };
 
 #endif // UTILITIES_H

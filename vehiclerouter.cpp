@@ -9,10 +9,20 @@
 #include <lemon/list_graph.h>
 #include <QDebug>
 #include "utilities.h"
+#include <queue>
 using namespace lemon;
 
 VehicleRouter* VehicleRouter::myInstance=NULL;
 
+AStarCompare::AStarCompare(lemon::IterableValueMap<lemon::SmartDigraph, lemon::SmartDigraph::Node, double> &map)
+{
+   myEstimate=&map;
+}
+
+bool AStarCompare::operator() (const lemon::SmartDigraph::Node& a, const lemon::SmartDigraph::Node& b) const
+{
+    return (*myEstimate)[a]>(*myEstimate)[b];
+}
 bool VehicleRouter::myNodeCompare(lemon::SmartDigraph::Node a,lemon::SmartDigraph::Node b)
 {
     return  a<b;
@@ -47,6 +57,8 @@ void VehicleRouter::setIgnoreWaitingTime(bool ignore)
 //Computes the route between s and t and returns a pair consisting of the list of nodes and the length of the path
 std::pair <QList <SmartDigraph::Node>,double> VehicleRouter::getRoute (const SmartDigraph::Node& s, const SmartDigraph::Node& t,RoutingNetwork* net)
 {
+    return getRouteAStar(s,t,net);
+    /*
     std::pair <QList <SmartDigraph::Node>,double> result;
     Dijkstra<SmartDigraph, RoutingNetwork::DistanceMap> dijkstra_test(*net->graph(),*net->distanceMap());
     dijkstra_test.run(s);
@@ -65,7 +77,83 @@ std::pair <QList <SmartDigraph::Node>,double> VehicleRouter::getRoute (const Sma
 
     result.first=path;
     result.second=path_length;
-    return result;
+    return result;*/
+}
+std::pair <QList <lemon::SmartDigraph::Node>,double> VehicleRouter::getRouteAStar (const lemon::SmartDigraph::Node& s,const lemon::SmartDigraph::Node& t,RoutingNetwork* net)
+{
+    lemon::SmartDigraph* graph = net->graph();
+    lemon::IterableValueMap<lemon::SmartDigraph,lemon::SmartDigraph::Node,lemon::SmartDigraph::Node> pred(*graph);
+    lemon::IterableValueMap<lemon::SmartDigraph,lemon::SmartDigraph::Node,double> cost(*graph);
+    lemon::IterableValueMap<lemon::SmartDigraph,lemon::SmartDigraph::Node,double> estimate(*graph);
+    QSet<int> explored;
+    QSet<int> seen;
+    typedef  std::priority_queue<lemon::SmartDigraph::Node,
+            std::vector<lemon::SmartDigraph::Node>,
+            AStarCompare> type_priority_queue;
+    AStarCompare cmp(estimate);
+    type_priority_queue pqueue( cmp );
+    pred.set(s,lemon::INVALID);
+    cost.set(s,0);
+    estimate.set(s,0);
+    lemon::SmartDigraph::Node childNode=lemon::INVALID, nextNode=lemon::INVALID;
+    RoutingNetwork::DistanceMap* dist=net->distanceMap();
+    bool found=false;
+    double h=0;
+    double c=0;
+    std::pair <QList <lemon::SmartDigraph::Node>,double> returnVal;
+    pqueue.push(s);
+    QPointF targPoint = toPoint(t);
+    while(pqueue.size()>0)
+    {
+        nextNode=pqueue.top();
+        pqueue.pop();
+        explored.insert(graph->id(nextNode));
+        if(nextNode==t)
+        {
+            found=true;
+            break;
+        }
+        for(lemon::SmartDigraph::OutArcIt oait(*graph,nextNode);oait!=lemon::INVALID;++oait)
+        {
+            childNode=graph->target(oait);
+            if(!seen.contains(graph->id(childNode)))
+            {
+                estimate.set(childNode,1e9);
+                seen.insert(graph->id(childNode));
+            }
+            h = Utilities::distKM(toPoint(childNode),targPoint);
+            c = cost[nextNode]+(*dist)[oait];//*1000;
+            if(!explored.contains(graph->id(childNode)) && estimate[childNode]> h+c )
+            {
+                pred.set(childNode,nextNode);
+                cost.set(childNode,c);
+                estimate.set(childNode,c+h);
+                pqueue.push(childNode);
+            }
+        }
+    }
+    double tcost=0;
+    if(found)
+    {
+        lemon::SmartDigraph::Node predNode=pred[nextNode];
+        while(predNode!=lemon::INVALID)
+        {
+            returnVal.first.push_front(nextNode);
+            predNode=pred[nextNode];
+            if(predNode!=INVALID)
+            {
+                for(lemon::SmartDigraph::OutArcIt oait(*graph,predNode);oait!=lemon::INVALID;++oait)
+                {
+                    if(graph->target(oait)==nextNode)
+                        tcost+=(*dist)[oait];
+                }
+                nextNode=predNode;
+            }
+        }
+    }
+    returnVal.second=tcost;
+    return returnVal;
+
 }
 
 bool VehicleRouter::comparator(std::pair<Vehicle*,qreal> i, std::pair<Vehicle*,qreal> j)
@@ -263,7 +351,7 @@ QList < QList <SmartDigraph::Node> > VehicleRouter::getPermutations2 (QList<Smar
         QList<QPair<SmartDigraph::Node, double> > locdist;
         foreach (SmartDigraph::Node n2, nodes2) {
             QPair <SmartDigraph::Node, double> loc;
-            loc.second=(toPoint(start)-toPoint(n2)).manhattanLength()*40000/360;
+            loc.second=Utilities::dist(toPoint(start),toPoint(n2));//.manhattanLength()*40000/360;
             loc.first=n2;
             locdist.append(loc);
         }
@@ -322,8 +410,8 @@ Vehicle* VehicleRouter::route(Customer* cust)
         QList < QPair < SmartDigraph::Node, SmartDigraph::Node> > odlist=stop_locations.second;
 
         //get all permutations of the nodes
-        QList < QList <SmartDigraph::Node> > perms=getPermutations(nodes);
-        //QList < QList <SmartDigraph::Node> > perms=getPermutations2(nodes,agent,odlist);
+        //QList < QList <SmartDigraph::Node> > perms=getPermutations(nodes);
+        QList < QList <SmartDigraph::Node> > perms=getPermutations2(nodes,agent,odlist);
         //qDebug()<<"There are :"<<perms.size()<<"permutations";
 
         SmartDigraph::Node agent_position;
