@@ -167,7 +167,7 @@ void EventDropOff::execute()
                            QString::number(myCustomer->pickUpTime()/60.0)+","+
                            QString::number(myCustomer->optimalTime()/60.0) +","+
                            QString::number((myTime-myCustomer->pickUpTime())/60.0) +","+
-                           QString::number((myCustomer->pickUpTime()-myCustomer->requestTime())/60.0)+
+                           QString::number((myCustomer->pickUpTime()-myCustomer->requestTime())/60.0)+","
                            "3" );
     ScoreBoard::instance()->last()->addDelivered(myTime-myCustomer->pickUpTime(),myCustomer->optimalTime(),myCustomer->pickUpTime()-myCustomer->requestTime());
     myCustomer->world()->removeCustomer(myCustomer);
@@ -342,7 +342,7 @@ void EventDisappear::execute()
     OutputGenerator::instance()->writeCust(QString::number(customer->id()) + ","+
                            QString::number(myTime/60.0)+","+
                            "-1,"+
-                           QString::number(customer->optimalTime()/60.0)+
+                           QString::number(customer->optimalTime()/60.0)+","
                            "-1,"+
                            "-1,"+
                            "3" );

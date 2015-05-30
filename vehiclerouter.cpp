@@ -107,6 +107,8 @@ std::pair <QList <lemon::SmartDigraph::Node>,double> VehicleRouter::getRouteASta
     {
         nextNode=pqueue.top();
         pqueue.pop();
+        if(explored.contains(graph->id(nextNode)))
+            continue;
         explored.insert(graph->id(nextNode));
         if(nextNode==t)
         {
