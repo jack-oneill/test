@@ -10,6 +10,8 @@ Customer::Customer(uint64_t id, QString name, const lemon::SmartDigraph::Node& p
     myIdealDistance=1e8;
     myPickUpTime=0;
     myOptimalTime=0;
+    myNeighborhoodId=-1;
+    myHasVehicle=false;
 }
 lemon::SmartDigraph::Node Customer::origin()
 {
@@ -27,6 +29,15 @@ unsigned Customer::satisfaction()
 void Customer::setIdealDistance(const double& idist)
 {
     myIdealDistance=idist;
+}
+void Customer::setNeighborhoodId(const int& nid)
+{
+    myNeighborhoodId=nid;
+}
+
+int Customer::neighborhoodId() const
+{
+   return myNeighborhoodId;
 }
 
 double Customer::idealDistance() const
@@ -82,4 +93,14 @@ uint64_t Customer::requestTime() const
 uint64_t Customer::setRequestTime(const uint64_t& tim)
 {
     myRequestTime=tim;
+}
+
+void Customer::setHasVehicle(bool val)
+{
+    myHasVehicle=val;
+}
+
+bool Customer::hasVehicle() const
+{
+    return myHasVehicle;
 }

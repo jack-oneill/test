@@ -132,6 +132,7 @@ void CustomerGeneratorOffline::generate(const unsigned& num)
             target = neighborhoods[sel->target()]->get( nodepicker() );
         }
         Customer* cust = AgentFactory::instance()->newCustomer("Customer "+QString::number(i),source,target,myWorld);//new Customer(i,"Customer "+QString::number(i),source,target,myWorld);
+        cust->setNeighborhoodId((int)sel->source());
         uint64_t time=0;
         int vnoise = noise(rng)*60;
         if(vnoise<0 && sel->start()< -1*vnoise)

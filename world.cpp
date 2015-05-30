@@ -42,6 +42,13 @@ QList<Customer*> World::customers()
     }
     return list;
 }
+QList<Customer*> World::customersInNeighborhood(const int& index) const
+{
+    QMap<int,QList<Customer*> >::const_iterator hit=myNeighToCustomers.constFind(index);
+    if(hit==myNeighToCustomers.constEnd())
+        return QList<Customer*>();
+    return hit.value();
+}
 
 uint64_t World::time() const
 {
@@ -64,10 +71,23 @@ void World::addVehicle(Vehicle* vhl)
 void World::addCustomer(Customer* cust)
 {
     myCustomers[cust->id()]=cust;
+    int neigh = cust->neighborhoodId();
+    if(neigh>=0)
+    {
+        myNeighToCustomers[neigh].append(cust);
+        myCustomerToNeigh[cust]=neigh;
+    }
     emit customerAdded(cust);
 }
 void World::removeCustomer(Customer * cust)
 {
+    QMap<Customer*,int>::iterator neighIt = myCustomerToNeigh.find(cust);
+    if(neighIt!=myCustomerToNeigh.end())
+    {
+        int neigh = neighIt.value();
+        myNeighToCustomers.remove(neigh);
+        myCustomerToNeigh.erase(neighIt);
+    }
     myCustomers.remove(cust->id());
     emit customerDestroyed(cust);
     delete cust;
@@ -87,8 +107,17 @@ void World::takeCustomer(Customer* cust)
 
 void World::clear()
 {
+    QMap<Customer*,int>::iterator neighIt;
+    int neigh=-1;
     for(QMap<uint64_t,Customer*>::iterator it = myCustomers.begin();it!=myCustomers.end();++it)
     {
+        neighIt = myCustomerToNeigh.find(it.value());
+        if(neighIt!=myCustomerToNeigh.end())
+        {
+            neighIt.value();
+            myNeighToCustomers.remove(neigh);
+            myCustomerToNeigh.erase(neighIt);
+        }
         emit customerDestroyed(it.value());
         delete it.value();
     }

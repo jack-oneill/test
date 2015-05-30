@@ -106,3 +106,17 @@ void EventQueue::clear()
     myQueue.clear();
     myAgentEvents.clear();
 }
+
+bool EventQueue::existsEvent(const uint64_t& tim,const EventType& typ,Agent* ag) const
+{
+    QMap<uint64_t,QList<Event*> >::const_iterator it = myQueue.constFind(tim);
+    if(it==myQueue.constEnd())
+        return false;
+    QList<Event*>::const_iterator lit = it.value().constBegin();
+    for(;lit!=it.value().constEnd();++lit)
+    {
+       if((*lit)->agent()==ag && (*lit)->type()==typ)
+           return true;
+    }
+    return false;
+}

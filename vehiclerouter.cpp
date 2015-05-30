@@ -196,7 +196,7 @@ bool VehicleRouter::canAddCustomer(const QList <SmartDigraph::Node>& route,Vehic
 
     QSet <Customer*> customers=agent->customers();
     customers.insert(cust);
-    if (customers.size()<agent->capacity()){
+    if (customers.size()<=agent->capacity()){
         can=true;
         foreach (Customer* c, customers) {
             SmartDigraph::Node origin=c->origin();
@@ -486,6 +486,7 @@ Vehicle* VehicleRouter::route(Customer* cust)
         {
             if (canAddCustomer(route.first,agent,cust)){
                     agent->addCustomer(cust);//add the customer to the agent
+                    cust->setHasVehicle(true);
                     just_route=route.first;//
                     for ( QList <SmartDigraph::Node>::iterator route_iter = just_route.begin();route_iter != just_route.end(); ++route_iter) {
                         QPair <SmartDigraph::Node, double> new_element;

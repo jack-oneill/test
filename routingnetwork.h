@@ -54,6 +54,7 @@ protected:
     QPointF myCenter;
     bool loadNeighborhoods(QFile &);
     bool myValid;
+    double myMaxNeighborhoodRadius;
 public:
     RoutingNetwork(const QString&);
     ~RoutingNetwork();
@@ -67,6 +68,7 @@ public:
     QPointF center() const;
     QVector<Neighborhood*> neigborhoods() const;
     bool valid() const;
+    double getMaxNeighborhoodRadius() const;
 };
 
 #endif // ROUTINGNETWORK_H

@@ -21,9 +21,9 @@ protected:
     uint64_t myTime;
 public:
     Event(Agent*,uint64_t time,SimulationKernel*);
-    EventType type();
-    uint64_t time();
-    Agent* agent();
+    EventType type() const;
+    uint64_t time() const;
+    Agent* agent() const;
     virtual void execute()=0;
 
 };
@@ -40,6 +40,7 @@ class EventMove : public Event
 protected:
     unsigned myIndex;
     unsigned myTotal;
+    QSet<Customer*> customersWithinReach();
 public:
     EventMove(Vehicle*,uint64_t,unsigned,unsigned,SimulationKernel*);
     virtual void execute();
@@ -58,6 +59,7 @@ public:
 class EventDropOff : public Event
 {
 private:
+    QSet<Customer*> customersWithinReach();
     Customer* myCustomer;
 public:
     EventDropOff(Customer*, Vehicle*,uint64_t,SimulationKernel*);

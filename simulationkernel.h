@@ -47,9 +47,10 @@ public:
     World* world();
     uint64_t time() const;
     void visualizeMe(Agent*);
-    void removeEvents(Vehicle*);
+    void removeEvents(Agent*);
     void setTimeLimit(uint64_t hours);
     QMutex& viewRefreshMutex();
+    bool existsEvent(const uint64_t&,const EventType&,Agent*) const;
 signals:
     void visualize();
     void simulationEnded();

@@ -1,5 +1,7 @@
 #include "event.h"
 #include "vehicledispatcher.h"
+#include "utilities.h"
+#include <QSet>
 #include <QDebug>
 #include "customer.h"
 #include "vehicle.h"
@@ -22,17 +24,17 @@ Event::Event(Agent* ag,uint64_t tim ,SimulationKernel* ker )
     ker->pushEvent(this);
 }
 
-EventType Event::type()
+EventType Event::type() const
 {
     return myType;
 }
 
-uint64_t Event::time()
+uint64_t Event::time() const
 {
     return myTime;
 }
 
-Agent* Event::agent()
+Agent* Event::agent() const
 {
     return myAgent;
 }
@@ -67,6 +69,32 @@ EventMove::EventMove(Vehicle* veh,uint64_t tim,unsigned index, unsigned total,Si
     myType=t_EventMove;
 }
 
+QSet<Customer*> EventMove::customersWithinReach()
+{
+    Vehicle* veh = (Vehicle*)myAgent;
+    World* world = veh->world();
+    QVector<Neighborhood*> neighborhoods= world->network()->neigborhoods();
+    RoutingNetwork::PositionMap* pmap = world->network()->positionMap();
+    QPointF vpos = (*pmap)[veh->nextPosition()];
+    QSet<Customer*> rval;
+    double mdist = world->network()->getMaxNeighborhoodRadius()+2000;
+    for(int i=0;i<neighborhoods.size();++i)
+    {
+        if(mdist>=Utilities::dist(vpos,neighborhoods[i]->center()))
+        {
+           QList<Customer*> ncust = world->customersInNeighborhood(i);
+           for(int j=0;j<ncust.size();++j)
+           {
+                if(Utilities::dist((*pmap)[ncust[j]->position(0).first],vpos)<=2000)
+                {
+                    rval.insert(ncust[j]);
+                }
+           }
+        }
+    }
+    return rval;
+}
+
 void EventMove::execute()
 {
     Vehicle* vehicle = (Vehicle*) myAgent;
@@ -93,6 +121,23 @@ void EventMove::execute()
                            QString::number((*this->agent()->world()->network()->arcIdMap())[vehicle->arc()])+","+
                            subline+
                            "0" );
+    /*if(vehicle->capacity()>vehicle->customers().size())
+    {
+        QSet<Customer*> ncust = customersWithinReach();
+        //New customers within reach
+        QSet<Customer*> ncust_new = ncust-vehicle->customersWithinReach();
+        vehicle->setCustomersWithinReach(ncust);
+        QVector<Customer*> valid;
+        for(QSet<Customer*>::iterator it = ncust_new.begin();it!=ncust_new.end();++it)
+        {
+            if(!myKernel->existsEvent(myTime,t_EventSnooze,*it) && (*it)->requestTime()+1800>myTime && (*it)->hasVehicle()==false)
+                valid.append(*it);
+        }
+        for(int i=0;i<valid.size();++i)
+        {
+            new EventSnooze(valid[i],0,myTime,myKernel);
+        }
+    }*/
     //Reroute the vehicle to a neighborhood
     if(myIndex==myTotal)
     {
@@ -150,6 +195,33 @@ EventDropOff::EventDropOff(Customer* cust, Vehicle* veh,uint64_t tim,SimulationK
     myCustomer=cust;
 }
 
+QSet<Customer*> EventDropOff::customersWithinReach()
+{
+    Vehicle* veh = (Vehicle*)myAgent;
+    World* world = veh->world();
+    QVector<Neighborhood*> neighborhoods= world->network()->neigborhoods();
+    RoutingNetwork::PositionMap* pmap = world->network()->positionMap();
+    QPointF vpos = (*pmap)[veh->nextPosition()];
+    QSet<Customer*> rval;
+    double mdist = world->network()->getMaxNeighborhoodRadius()+2000;
+    for(int i=0;i<neighborhoods.size();++i)
+    {
+        if(mdist>=Utilities::dist(vpos,neighborhoods[i]->center()))
+        {
+           QList<Customer*> ncust = world->customersInNeighborhood(i);
+           for(int j=0;j<ncust.size();++j)
+           {
+                if(Utilities::dist((*pmap)[ncust[j]->position(0).first],vpos)<=2000)
+                {
+                    rval.insert(ncust[j]);
+                }
+           }
+        }
+    }
+    return rval;
+}
+
+
 Customer* EventDropOff::customer()
 {
     return myCustomer;
@@ -192,6 +264,21 @@ void EventDropOff::execute()
                            QString::number((*this->agent()->world()->network()->arcIdMap())[vehicle->arc()])+","+
                            subline+
                            "2" );
+    /*if(vehicle->capacity()>vehicle->customers().size())
+    {
+        QSet<Customer*> ncust = customersWithinReach();
+        vehicle->setCustomersWithinReach(ncust);
+        QVector<Customer*> valid;
+        for(QSet<Customer*>::iterator it = ncust.begin();it!=ncust.end();++it)
+        {
+            if(!myKernel->existsEvent(myTime,t_EventSnooze,*it) &&(*it)->requestTime()+1800!=myTime && (*it)->hasVehicle()==false )
+                valid.append(*it);
+        }
+        for(int i=0;i<valid.size();++i)
+        {
+            new EventSnooze(valid[i],0,myTime,myKernel);
+        }
+    }*/
 }
 
 EventShowUp::EventShowUp(Customer* cust,uint64_t tim,SimulationKernel* ker) : Event(cust,tim,ker)
@@ -208,15 +295,17 @@ void EventShowUp::assignVehicle()
     {
         Logger::instance()<<50<<myTime<<"No vehicle for customer "+QString::number(((Customer*)myAgent)->id())+". Waiting for "+QString::number(SNOOZETIME)+" seconds.";
         if(myTime-((Customer*)myAgent)->requestTime()>=1800)//Half an hour
-            new EventDisappear((Customer*)myAgent,myTime,myKernel);
+            new EventDisappear((Customer*)myAgent,myTime+1800,myKernel);
         else
             new EventSnooze((Customer*)myAgent,SNOOZETIME,myTime+SNOOZETIME,myKernel);
+        //if(myTime==((Customer*)myAgent)->requestTime() && this->type()==t_EventShowUp)
     }
     else
     {
         Logger::instance()<<25<<myTime<<"Customer "+QString::number(myAgent->id())+" assigned to "+QString::number(veh->id())+".";
         QList<QPair<lemon::SmartDigraph::Node,double> > route=veh->routeAndSpeed();
         myKernel->removeEvents(veh);
+        myKernel->removeEvents(myAgent);
         uint64_t tim=myTime;
         QSet<Customer*> customers = veh->customers();
         QMap<lemon::SmartDigraph::Node,QList<Customer*> > destToCust;
@@ -338,6 +427,8 @@ EventDisappear::EventDisappear(Customer* cust,uint64_t tim,SimulationKernel* ker
 void EventDisappear::execute()
 {
     Customer* customer = (Customer*)myAgent;
+    if(customer->hasVehicle())
+        return;
     Logger::instance()<<50<<myTime<<"Customer "+QString::number(customer->id())+" disappeared.";
     OutputGenerator::instance()->writeCust(QString::number(customer->id()) + ","+
                            QString::number(myTime/60.0)+","+

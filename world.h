@@ -14,6 +14,8 @@ class World : public QObject
 private:
     QMap<uint64_t,Vehicle*> myVehicles;
     QMap<uint64_t,Customer*> myCustomers;
+    QMap<int,QList<Customer*> > myNeighToCustomers;
+    QMap<Customer*,int > myCustomerToNeigh;
     RoutingNetwork* myNetwork;
     SimulationKernel* myKernel;
 public:
@@ -23,11 +25,12 @@ public:
     SimulationKernel* kernel() const;
     QList<Vehicle*> vehicles();
     QList<Customer*> customers();
+    QList<Customer*> customersInNeighborhood(const int&) const;
     uint64_t time() const;
     QList<Event*> initialize();
     void addVehicle(Vehicle*);
     void addCustomer(Customer*);
-    void takeCustomer(Customer*);
+    void takeCustomer(Customer* cust);
     bool valid();
     RoutingNetwork* network() const;
 signals:

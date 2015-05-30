@@ -142,3 +142,11 @@ void Vehicle::move(const uint64_t& time)
     if(myPosition==lemon::INVALID)
         qDebug()<<"ERROR: Position Invalid for Vehicle "+QString::number(this->id());
 }
+QSet<Customer*> Vehicle::customersWithinReach() const
+{
+   return myCustomersWithinReach;
+}
+void Vehicle::setCustomersWithinReach(const QSet<Customer*>& creach)
+{
+   myCustomersWithinReach=creach;
+}

@@ -16,6 +16,7 @@ protected:
     int myCurrentPos;
     uint64_t myLastMoveTime;
     double myInitialOffset;
+    QSet<Customer*> myCustomersWithinReach;
 public:
     Vehicle(uint64_t,unsigned,QString,const lemon::SmartDigraph::Node&,World*);
     virtual ~Vehicle();
@@ -31,6 +32,8 @@ public:
     double speed();
     double initialOffset() const;
     void move(const uint64_t&);
+    QSet<Customer*> customersWithinReach() const;
+    void setCustomersWithinReach(const QSet<Customer*>&);
     uint64_t lastMoveTime() const;
 };
 

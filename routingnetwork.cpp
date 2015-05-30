@@ -95,6 +95,7 @@ RoutingNetwork::RoutingNetwork(const QString& file)
     myPositionMap=NULL;
     myCenter.setX(0);
     myCenter.setY(0);
+    myMaxNeighborhoodRadius=0;
     myValid=load(file);
 }
 
@@ -221,6 +222,7 @@ bool RoutingNetwork::loadNeighborhoods(QFile &file)
     for(int i=0;i<myNeighborhoods.size();++i)
     {
         myNeighborhoods[i]->toCdf();
+        myMaxNeighborhoodRadius=fmax(myNeighborhoods[i]->radius(),myMaxNeighborhoodRadius);
         QVector<QPair<lemon::SmartDigraph::Node,double> > nodes = myNeighborhoods[i]->nodes();
         double minDist=6000;
         Neighborhood* neigh = myNeighborhoods[i];
@@ -325,4 +327,9 @@ QVector<Neighborhood*> RoutingNetwork::neigborhoods() const
 bool RoutingNetwork::valid() const
 {
     return myValid;
+}
+
+double RoutingNetwork::getMaxNeighborhoodRadius() const
+{
+    return myMaxNeighborhoodRadius;
 }

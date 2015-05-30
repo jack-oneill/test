@@ -30,6 +30,7 @@ public:
     void removeEvent(Event*);
     unsigned size() const;
     void clear();
+    bool existsEvent(const uint64_t&,const EventType&,Agent* ag) const;
 };
 
 #endif // EVENTQUEUE_H
