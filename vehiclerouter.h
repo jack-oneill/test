@@ -10,11 +10,10 @@
 class World;
 class Customer;
 class RoutingNetwork;
-<<<<<<< HEAD
+
 #define SATISFACTION_TRESHOLD 0.7
-=======
-#define SATISFACTION_TRESHOLD 0.5
->>>>>>> 93eb53a176d461985dbf76a24571dc43d7b0e4dc
+
+
 #define SPEED 6.5 //in m/s
 #define WAITING_TIME 15.0// in minutes
 class AStarCompare

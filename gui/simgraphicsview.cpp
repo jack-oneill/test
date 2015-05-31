@@ -142,40 +142,40 @@ World* SimGraphicsView::world()
 
 void SimGraphicsView::refresh()
 {
-//    QMutexLocker locker(&myWorld->kernel()->viewRefreshMutex());
-//    if(myWorld->vehicles().size()==0)
-//        return;
-//    QMainWindow* mainWindow=(QMainWindow*)parent();
-//    QHash<Agent*,QGraphicsItem*>::iterator it= myItemMap.begin();
-//    for(;it!=myItemMap.end();++it)
-//    {
-//        if(it.key()->type()==VEHICLE)
-//        {
-//            Vehicle* vehicle = (Vehicle*) it.key();
-//            double covered =  vehicle->position(myWorld->time()).second;
-//            if(covered>1)
-//                covered=1;
-//            QPointF p1 = (*myWorld->network()->positionMap())[ vehicle->position(myWorld->time()).first]-myWorld->network()->center();
-//            QPointF p2 = (*myWorld->network()->positionMap())[vehicle->nextPosition()]-myWorld->network()->center();
-//            p1*=MY_FACTOR;
-//            p2*=MY_FACTOR;
-//            p1.setY(-1*p1.y());
-//            p2.setY(-1*p2.y());
-//            if(p1==p2)
-//                it.value()->setPos(p1);
-//            else
-//                it.value()->setPos(covered*p2+(1-covered)*p1);
-//        }
-//    }
-//    myScene->update();
-//    uint64_t time = myWorld->time();
-//    uint64_t hours = time/3600;
-//    uint64_t minutes = time/60-hours*60;
-//    uint64_t seconds = time-hours*3600-minutes*60;
-//    QTime tim;
-//    tim.setHMS( (int)hours,(int)minutes,(int)seconds);
-//    if(myTimeLabel)
-//        myTimeLabel->setText(tim.toString());
+    QMutexLocker locker(&myWorld->kernel()->viewRefreshMutex());
+    if(myWorld->vehicles().size()==0)
+        return;
+    QMainWindow* mainWindow=(QMainWindow*)parent();
+    QHash<Agent*,QGraphicsItem*>::iterator it= myItemMap.begin();
+    for(;it!=myItemMap.end();++it)
+    {
+        if(it.key()->type()==VEHICLE)
+        {
+            Vehicle* vehicle = (Vehicle*) it.key();
+            double covered =  vehicle->position(myWorld->time()).second;
+            if(covered>1)
+                covered=1;
+            QPointF p1 = (*myWorld->network()->positionMap())[ vehicle->position(myWorld->time()).first]-myWorld->network()->center();
+            QPointF p2 = (*myWorld->network()->positionMap())[vehicle->nextPosition()]-myWorld->network()->center();
+            p1*=MY_FACTOR;
+            p2*=MY_FACTOR;
+            p1.setY(-1*p1.y());
+            p2.setY(-1*p2.y());
+            if(p1==p2)
+                it.value()->setPos(p1);
+            else
+                it.value()->setPos(covered*p2+(1-covered)*p1);
+        }
+    }
+    myScene->update();
+    uint64_t time = myWorld->time();
+    uint64_t hours = time/3600;
+    uint64_t minutes = time/60-hours*60;
+    uint64_t seconds = time-hours*3600-minutes*60;
+    QTime tim;
+    tim.setHMS( (int)hours,(int)minutes,(int)seconds);
+    if(myTimeLabel)
+        myTimeLabel->setText(tim.toString());
 }
 
 void SimGraphicsView::addVehicle(Vehicle* veh)
