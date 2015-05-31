@@ -9,9 +9,11 @@ protected:
     unsigned mySatisfaction;
     Vehicle* myVehicle;
     bool myWaiting;
+    bool myHasVehicle;
     uint64_t myRequestTime;
     uint64_t myOptimalTime;
     uint64_t myPickUpTime;
+    int myNeighborhoodId;
 
     double myIdealDistance;
 public:
@@ -20,6 +22,8 @@ public:
     lemon::SmartDigraph::Node destination();
     unsigned satisfaction();
     void setIdealDistance(const double&);
+    void setNeighborhoodId(const int&);
+    int neighborhoodId() const;
     double idealDistance() const;
     void setSatisfaction(const unsigned&);
     void setVehicle(Vehicle*);
@@ -29,7 +33,8 @@ public:
     uint64_t optimalTime() const;
     void setPickUpTime(const uint64_t&);
     uint64_t pickUpTime() const;
-
+    void setHasVehicle(bool);
+    bool hasVehicle() const;
     bool waiting() const;
     uint64_t requestTime() const;
     uint64_t setRequestTime(const uint64_t&);

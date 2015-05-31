@@ -111,9 +111,9 @@ void SimulationKernel::pushEvent(Event* event)
    myEventQueue->push(event);
 }
 
-void SimulationKernel::removeEvents(Vehicle* vehicle)
+void SimulationKernel::removeEvents(Agent* agent)
 {
-    myEventQueue->removeEvents(vehicle);
+    myEventQueue->removeEvents(agent);
 }
 
 void SimulationKernel::setTimeLimit(uint64_t hours)
@@ -126,6 +126,10 @@ QMutex& SimulationKernel::viewRefreshMutex()
     return *myViewRefreshMutex;
 }
 
+bool SimulationKernel::existsEvent(const uint64_t& tim,const EventType& typ,Agent* ag) const
+{
+   return myEventQueue->existsEvent(tim,typ,ag);
+}
 void SimulationKernel::start()
 {
     mySimulationStopped=false;
