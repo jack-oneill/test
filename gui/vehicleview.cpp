@@ -17,24 +17,24 @@ void VehicleView::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 {
     Q_UNUSED(widget);
     QBrush obrush = painter->brush();
-    if(myVehicle->customers().size()==0)
+    /*if(myVehicle->customers().size()==0)
         painter->setBrush(Qt::yellow);
-    else
-        painter->setBrush(Qt::red);
+    else*/
+    painter->setBrush(Qt::red);
     painter->drawEllipse(-1,-1,2,2);
-    painter->setBrush(Qt::black);
-    QPen pen = painter->pen();
-    double width =pen.widthF();
-    pen.setWidthF(0.001);
-    QColor col = pen.color();
-    pen.setColor(Qt::black);
-    QFont font = painter->font();
-    font.setPointSizeF(1.5);
-    painter->setFont(font);
-    painter->drawText(QRectF(-1,-1,2,2),Qt::AlignCenter,QString::number(myVehicle->customers().size()));
-    pen.setWidth(width);
-    pen.setColor(col);
-    painter->setPen(pen);
+    //painter->setBrush(Qt::black);
+    //QPen pen = painter->pen();
+    //double width =pen.widthF();
+    //pen.setWidthF(0.001);
+    //QColor col = pen.color();
+    //pen.setColor(Qt::black);
+    //QFont font = painter->font();
+    //font.setPointSizeF(1.5);
+    //painter->setFont(font);
+    //painter->drawText(QRectF(-1,-1,2,2),Qt::AlignCenter,QString::number(myVehicle->customers().size()));
+    //pen.setWidth(width);
+    //pen.setColor(col);
+    //painter->setPen(pen);
     painter->setBrush(obrush);
 }
 
