@@ -295,7 +295,7 @@ void EventShowUp::assignVehicle()
     {
         Logger::instance()<<50<<myTime<<"No vehicle for customer "+QString::number(((Customer*)myAgent)->id())+". Waiting for "+QString::number(SNOOZETIME)+" seconds.";
         if(myTime-((Customer*)myAgent)->requestTime()>=1800)//Half an hour
-            new EventDisappear((Customer*)myAgent,myTime+1800,myKernel);
+            new EventDisappear((Customer*)myAgent,myTime,myKernel);//+1800
         else
             new EventSnooze((Customer*)myAgent,SNOOZETIME,myTime+SNOOZETIME,myKernel);
         //if(myTime==((Customer*)myAgent)->requestTime() && this->type()==t_EventShowUp)
