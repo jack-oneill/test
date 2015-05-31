@@ -507,7 +507,7 @@ void EventRepositionVehicle::execute()
         }
         if(route.size()<=1)
         {
-            new EventRepositionVehicle(veh,myTime+9000,myKernel);
+            new EventRepositionVehicle(veh,myTime+3000,myKernel);
         }
     }
 }

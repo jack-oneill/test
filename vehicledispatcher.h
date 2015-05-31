@@ -7,6 +7,7 @@
 #include <lemon/smart_graph.h>
 #include <QList>
 #include <QPair>
+#include <QSet>
 class VehicleRouter;
 class World;
 class Vehicle;
@@ -17,6 +18,7 @@ private:
     World* myWorld;
     CustomerGeneratorOffline* myGenerator;
     QMap<uint64_t,QVector<unsigned> > myHistogram;
+    QSet<unsigned> myValidNeighborhoods;
     QVector<QList<uint64_t> > myDispatchedVehicles;
     QVector<unsigned> myLocatedVehicles;
     QMap<Vehicle*,QList<unsigned> > myTabuLists;

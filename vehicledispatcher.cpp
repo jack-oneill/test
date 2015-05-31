@@ -34,6 +34,7 @@ void VehicleDispatcher::constructHistogram()
             }
         }
         myHistogram[time][samples[i]->source()]+=1;
+        myValidNeighborhoods.insert(samples[i]->source());
     }
 
 }
@@ -50,6 +51,8 @@ void VehicleDispatcher::setup(World *world, CustomerGeneratorOffline *generator)
 
     myWorld=world;
     myGenerator=generator;
+    myHistogram.clear();
+    myValidNeighborhoods.clear();
     constructHistogram();
 }
 VehicleDispatcher* VehicleDispatcher::instance()
@@ -93,6 +96,8 @@ unsigned VehicleDispatcher::integrate(uint64_t start,uint64_t end,unsigned n)
 
 double VehicleDispatcher::score(Vehicle* veh,const unsigned& nId)
 {
+    if(!myValidNeighborhoods.contains(nId))
+        return -1;
     if(veh==NULL)
     {
         qDebug()<<"VehicleDispatcher::score() No vehicle specified";

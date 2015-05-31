@@ -11,7 +11,7 @@ class World;
 class Customer;
 class RoutingNetwork;
 
-#define SATISFACTION_TRESHOLD 0.7
+#define SATISFACTION_TRESHOLD 0.5
 
 
 #define SPEED 6.5 //in m/s
