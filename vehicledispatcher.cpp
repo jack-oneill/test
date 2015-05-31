@@ -121,7 +121,7 @@ double VehicleDispatcher::score(Vehicle* veh,const unsigned& nId)
     unsigned customers=integrate(start,end,nId);
     /*if(customers==0)
         return 0;*/
-    double customer_score = 0.1+customers;
+    double customer_score = customers;
     double vehicle_score = myAverageSeats*(myLocatedVehicles[nId]*0.5+myDispatchedVehicles[nId].size()*.75);
     return  30*customer_score/(0.1+vehicle_score*distance);
 
